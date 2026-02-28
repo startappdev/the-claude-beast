@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greptile Review Loop</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:#111;--surface:#161616;--surface-2:#1a1a1a;
+            --text:#f0f0f0;--text-2:#a0a0a0;--text-3:#555;
+            --accent:#d97757;--accent-2:#e8956f;
+            --accent-bg:rgba(217,119,87,0.07);
+            --accent-border:rgba(217,119,87,0.18);
+            --border:rgba(255,255,255,0.05);
+            --sans:'Inter',-apple-system,sans-serif;
+            --mono:'JetBrains Mono',monospace;
+            --fs-hero:clamp(3.2rem,7vw,5rem);
+            --fs-h2:clamp(2.4rem,5.5vw,4rem);
+            --fs-h3:clamp(1.3rem,2.3vw,1.75rem);
+            --fs-body:clamp(1.1rem,1.8vw,1.45rem);
+            --fs-sm:clamp(1rem,1.5vw,1.25rem);
+            --fs-xs:clamp(0.85rem,1.1vw,1rem);
+            --pad:clamp(2rem,5vw,5rem);
+            --gap:clamp(1rem,2.5vw,2rem);
+            --ease:cubic-bezier(0.16,1,0.3,1);
+        }
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        html{height:100%;overflow-x:hidden;scroll-snap-type:y mandatory;scroll-behavior:smooth}
+        body{font-family:var(--sans);background:var(--bg);color:var(--text);height:100%;overflow-x:hidden;-webkit-font-smoothing:antialiased;font-weight:400;letter-spacing:-0.01em}
+
+        /* GRID NET BACKGROUND */
+        body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+        body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 40%,var(--bg) 100%);pointer-events:none;z-index:0}
+
+        /* SLIDES */
+        .slide{width:100vw;height:100vh;height:100dvh;overflow:hidden;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;position:relative;padding:var(--pad)}
+        .slide::before{content:'';position:absolute;top:18%;left:45%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(217,119,87,.04) 0%,transparent 65%);pointer-events:none;z-index:0}
+
+        /* GRADIENT BORDER CONTAINER */
+        .wrap{position:relative;max-width:min(1020px,calc(100vw - 2*var(--pad)));width:100%;z-index:2;border-radius:24px;padding:1px;background:linear-gradient(135deg,rgba(217,119,87,.25) 0%,rgba(217,119,87,.04) 30%,rgba(255,255,255,.03) 60%,rgba(217,119,87,.15) 100%);max-height:calc(100dvh - 2*var(--pad));overflow:hidden}
+        .container{background:var(--surface);border-radius:23px;padding:clamp(1.5rem,3vw,3.5rem);position:relative;overflow:hidden}
+        .container::before{content:'';position:absolute;top:0;left:0;right:0;height:100px;background:linear-gradient(180deg,rgba(217,119,87,.025),transparent);pointer-events:none}
+
+        /* LOGO BAR */
+        .logo-bar{display:flex;align-items:center;gap:10px;margin-bottom:clamp(1.5rem,2.5vh,2.5rem)}
+        .logo-bar svg{width:22px;height:22px;fill:var(--accent)}
+        .logo-bar .name{font-size:18px;font-weight:500;color:var(--text-2)}
+        .logo-bar .slash{color:var(--text-3);margin:0 3px;font-weight:300}
+
+        /* TITLE SLIDE */
+        .slide--title .wrap{overflow:visible}
+        .slide--title .container{display:grid;grid-template-columns:1fr auto;gap:clamp(2rem,4vw,4rem);align-items:center;overflow:visible}
+        .slide--title .content{position:relative;z-index:1}
+        .badge{font-family:var(--mono);font-size:var(--fs-xs);color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:clamp(0.8rem,1.5vh,1.5rem)}
+        .slide--title h1{font-size:var(--fs-hero);font-weight:500;letter-spacing:-0.04em;line-height:1.08;margin-bottom:clamp(0.6rem,1.2vh,1.2rem)}
+        .t-sub{font-size:clamp(1.2rem,2vw,1.7rem);font-weight:300;color:var(--text-2);line-height:1.55;max-width:520px}
+        .meta{font-family:var(--mono);font-size:var(--fs-xs);color:var(--text-3);margin-top:clamp(1.5rem,2.5vh,2.5rem);display:flex;align-items:center;gap:12px}
+        .meta .d{width:3px;height:3px;border-radius:50%;background:var(--text-3)}
+
+        /* CLAWD */
+        .icon-panel{display:flex;align-items:center;justify-content:center;position:relative}
+        .clawd-img{width:clamp(130px,16vw,200px);height:auto;opacity:.7;filter:drop-shadow(0 0 40px rgba(217,119,87,.15));image-rendering:pixelated;image-rendering:crisp-edges;position:relative;z-index:1}
+        .icon-ring{position:absolute;width:clamp(170px,20vw,260px);height:clamp(170px,20vw,260px);border-radius:50%;border:1px solid rgba(217,119,87,.08);animation:ringPulse 6s ease-in-out infinite}
+        .icon-ring::before{content:'';position:absolute;inset:-1px;border-radius:50%;border:1px solid transparent;border-top-color:rgba(217,119,87,.18);animation:ringRotate 8s linear infinite}
+        @keyframes ringPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.04);opacity:.7}}
+        @keyframes ringRotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+        /* CONTENT */
+        h2{font-size:var(--fs-h2);font-weight:500;letter-spacing:-0.035em;line-height:1.1;margin-bottom:clamp(0.4rem,1vh,0.8rem)}
+        .sub{font-size:var(--fs-sm);color:var(--text-3);margin-bottom:clamp(1.2rem,2.5vh,2.2rem);line-height:1.5}
+        h3{font-size:var(--fs-h3);font-weight:500;color:var(--accent-2);margin-bottom:clamp(0.4rem,0.8vh,0.7rem);letter-spacing:-0.01em;overflow-wrap:break-word}
+        ul{list-style:none;display:flex;flex-direction:column;gap:clamp(0.5rem,1vh,0.85rem)}
+        li{font-size:var(--fs-body);line-height:1.45;color:var(--text-2);padding-left:1.3em;position:relative;font-weight:300;overflow-wrap:break-word}
+        li::before{content:'';position:absolute;left:0;top:0.55em;width:5px;height:5px;border:1.5px solid var(--accent);border-radius:1.5px;transform:rotate(45deg);opacity:.45}
+        li strong{color:var(--text);font-weight:500}
+
+        /* CARDS */
+        .grid{display:flex;flex-direction:column;gap:clamp(0.35rem,0.7vh,0.55rem);margin-top:clamp(0.6rem,1.5vh,1.2rem)}
+        .card{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:clamp(0.6rem,1.2vw,0.9rem) clamp(1rem,2vw,1.4rem);min-width:0;overflow:hidden;display:grid;grid-template-columns:clamp(130px,20%,200px) 1fr;gap:0 clamp(0.8rem,1.5vw,1.2rem);align-items:center}
+        .card h3{font-size:var(--fs-h3);margin:0;padding-right:clamp(0.8rem,1.5vw,1.2rem);border-right:1px solid var(--border);overflow-wrap:break-word;align-self:center}
+        .card li{font-size:var(--fs-body);font-weight:300}
+        .card li::before{width:4px;height:4px}
+        .card ul{gap:clamp(0.25rem,0.5vh,0.4rem)}
+
+        /* INSIGHT */
+        .insight{margin-top:clamp(1.5rem,3vh,2.5rem);padding:clamp(1rem,1.5vh,1.4rem) clamp(1.2rem,2vw,1.8rem);background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;font-size:var(--fs-sm);color:var(--text-2);line-height:1.5;font-weight:300}
+        .insight-tag{font-family:var(--mono);font-size:var(--fs-xs);color:var(--accent);text-transform:uppercase;letter-spacing:2px;display:block;margin-bottom:4px}
+
+        /* STEPS */
+        .steps{list-style:none;display:flex;flex-direction:column;gap:clamp(0.6rem,1.2vh,1rem);counter-reset:step}
+        .steps li{counter-increment:step;padding-left:2.2em;font-size:var(--fs-body)}
+        .steps li::before{content:counter(step);position:absolute;left:0;top:0;width:1.5em;height:1.5em;border-radius:50%;background:var(--accent-bg);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:var(--fs-xs);color:var(--accent);font-weight:500;transform:none}
+        code{font-family:var(--mono);color:var(--accent);font-size:var(--fs-sm)}
+
+        /* 3D CUBES */
+        .cs{perspective:400px;position:absolute;z-index:0;pointer-events:none}
+        .cb{position:relative;transform-style:preserve-3d;animation:spin 28s linear infinite}
+        .ff{position:absolute;border:1px solid var(--accent);opacity:.08}
+        .c1{--s:70px;top:8%;right:8%;opacity:.25}.c1 .cb,.c1 .ff{width:70px;height:70px}
+        .c1 .cb{animation-duration:30s}
+        .c2{--s:32px;bottom:15%;left:7%;opacity:.18;animation:drift 10s ease-in-out infinite}.c2 .cb,.c2 .ff{width:32px;height:32px}
+        .c2 .cb{animation-duration:16s;animation-direction:reverse}
+        .c3{--s:24px;top:28%;left:12%;opacity:.14;animation:drift 13s ease-in-out infinite 2s}.c3 .cb,.c3 .ff{width:24px;height:24px}
+        .c3 .cb{animation-duration:14s}
+        @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(8px,-12px)}}
+        .ff.a{transform:translateZ(calc(var(--s)/2))}.ff.b{transform:rotateY(180deg) translateZ(calc(var(--s)/2))}
+        .ff.c{transform:rotateY(90deg) translateZ(calc(var(--s)/2))}.ff.d{transform:rotateY(-90deg) translateZ(calc(var(--s)/2))}
+        .ff.e{transform:rotateX(90deg) translateZ(calc(var(--s)/2))}.ff.f{transform:rotateX(-90deg) translateZ(calc(var(--s)/2))}
+        .cp-0{--s:55px;top:9%;right:7%;opacity:.22}.cp-0 .cb,.cp-0 .ff{width:55px;height:55px}
+        .cp-1{--s:45px;bottom:11%;right:8%;opacity:.18}.cp-1 .cb,.cp-1 .ff{width:45px;height:45px}
+        .cp-2{--s:50px;top:10%;left:6%;opacity:.18}.cp-2 .cb,.cp-2 .ff{width:50px;height:50px}
+        .cp-3{--s:40px;bottom:13%;left:7%;opacity:.2}.cp-3 .cb,.cp-3 .ff{width:40px;height:40px}
+        .cp-0 .cb{animation-duration:24s}.cp-1 .cb{animation-duration:20s;animation-direction:reverse}
+        .cp-2 .cb{animation-duration:22s}.cp-3 .cb{animation-duration:18s;animation-direction:reverse}
+        @keyframes spin{from{transform:rotateX(-15deg) rotateY(0)}to{transform:rotateX(-15deg) rotateY(360deg)}}
+
+        /* CHROME */
+        .counter{position:absolute;bottom:clamp(1rem,2vh,1.5rem);right:clamp(2rem,4vw,3rem);font-family:var(--mono);font-size:var(--fs-xs);color:var(--text-3);opacity:.35}
+        .counter-sep{margin:0 2px;opacity:.4}
+        #progress{position:fixed;top:0;left:0;height:2px;background:var(--accent);width:0%;z-index:200;transition:width .35s ease}
+        .dots{position:fixed;right:clamp(0.6rem,1.2vw,1.2rem);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:200}
+        .dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);opacity:.2;border:none;cursor:pointer;padding:0;transition:all .3s ease}
+        .dot.active{opacity:1;background:var(--accent);box-shadow:0 0 8px rgba(217,119,87,.3);width:7px;height:7px}
+        .dot:hover{opacity:.5}
+        .bottom-mark{position:fixed;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.12}
+
+        /* ANIMATIONS */
+        .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+        .slide.visible .reveal{opacity:1;transform:translateY(0)}
+        .slide.visible .reveal:nth-child(1){transition-delay:.05s}
+        .slide.visible .reveal:nth-child(2){transition-delay:.1s}
+        .slide.visible .reveal:nth-child(3){transition-delay:.15s}
+        .slide.visible .reveal:nth-child(4){transition-delay:.2s}
+        .slide.visible .reveal:nth-child(5){transition-delay:.25s}
+        .slide.visible .reveal:nth-child(6){transition-delay:.3s}
+        .slide.visible .reveal:nth-child(7){transition-delay:.35s}
+        .slide.visible .reveal:nth-child(8){transition-delay:.4s}
+        ul .reveal:nth-child(1){transition-delay:.06s}
+        ul .reveal:nth-child(2){transition-delay:.12s}
+        ul .reveal:nth-child(3){transition-delay:.18s}
+        ul .reveal:nth-child(4){transition-delay:.24s}
+        ul .reveal:nth-child(5){transition-delay:.3s}
+
+        /* RESPONSIVE */
+        @media(max-width:768px){.slide--title .container{grid-template-columns:1fr}.icon-panel{display:none}.card{grid-template-columns:1fr}.card h3{border-right:none;border-bottom:1px solid var(--border);padding-right:0;padding-bottom:clamp(0.3rem,0.5vh,0.5rem);margin-bottom:clamp(0.3rem,0.5vh,0.5rem)}}
+        @media(max-height:850px){:root{--pad:clamp(1.5rem,4vw,3.5rem);--fs-h2:clamp(2rem,4.5vw,3.2rem);--fs-h3:clamp(1.15rem,2vw,1.5rem);--fs-body:clamp(1rem,1.5vw,1.2rem);--fs-sm:clamp(0.9rem,1.3vw,1.1rem)}}
+        @media(max-height:700px){:root{--pad:clamp(1.2rem,3vw,2.5rem);--fs-hero:clamp(2rem,4.5vw,3rem);--fs-h2:clamp(1.4rem,3vw,2rem);--fs-body:clamp(0.85rem,1.2vw,1rem)}}
+        @media(max-height:600px){:root{--pad:clamp(0.8rem,2vw,1.5rem);--fs-hero:clamp(1.6rem,3.5vw,2.4rem);--fs-h2:clamp(1.2rem,2.5vw,1.6rem);--fs-body:clamp(0.78rem,1vw,0.9rem)}.dots,.cs{display:none}body::before{display:none}}
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.15s!important}html{scroll-behavior:auto}}
+    </style>
+</head>
+<body>
+    <div id="progress"></div>
+    <nav class="dots" id="dots">
+        <button class="dot active" data-slide="0"></button>
+        <button class="dot" data-slide="1"></button>
+        <button class="dot" data-slide="2"></button>
+        <button class="dot" data-slide="3"></button>
+        <button class="dot" data-slide="4"></button>
+        <button class="dot" data-slide="5"></button>
+        <button class="dot" data-slide="6"></button>
+        <button class="dot" data-slide="7"></button>
+        <button class="dot" data-slide="8"></button>
+        <button class="dot" data-slide="9"></button>
+        <button class="dot" data-slide="10"></button>
+        <button class="dot" data-slide="11"></button>
+    </nav>
+    <div class="bottom-mark"></div>
+    <div class="cs c1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+    <div class="cs c2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+    <div class="cs c3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+
+    <!-- SLIDE 1: TITLE -->
+    <section class="slide slide--title" data-slide="1">
+        <div class="wrap"><div class="container">
+            <div class="content">
+                <div class="logo-bar reveal">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg>
+                    <span class="name">claude<span class="slash">/</span>code</span>
+                </div>
+                <div class="badge reveal">The Claude Beast Series</div>
+                <h1 class="reveal">Greptile<br>Review Loop</h1>
+                <p class="t-sub reveal">Autonomous Review&ndash;Fix&ndash;Merge for Every Pull Request.</p>
+                <p class="meta reveal"><span>Episode 14</span><span class="d"></span><span>February 2026</span></p>
+            </div>
+            <div class="icon-panel">
+                <div class="icon-ring"></div>
+                <img class="clawd-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAADwCAYAAAAJkrPKAAADtklEQVR4nO3XAY2EMABFQbicGRQhBQ1IQRFyOBVct/tmBDQ/KeGl6zK5+9if0RuApu281mViP6MHADCGAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQNTv6AF123m9ev597K+ez3fzfX43LwCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAICo9T72Z/QIAP6fFwBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAEDUukzuPvZn9AagaTuvqf+hXgAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABR6+gBn+4+9ufN87fzevUOZt/Pd9/v7Ptn5wUAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgCwNP0BGxIig14UU2oAAAAASUVORK5CYII=" alt="Clawd mascot">
+            </div>
+        </div></div>
+        <span class="counter">1<span class="counter-sep">/</span>12</span>
+    </section>
+
+    <!-- SLIDE 2: What Is /greptile-review-loop? -->
+    <section class="slide" data-slide="2">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">What Is It?</h2>
+            <p class="sub reveal">A fully autonomous agent that manages the entire PR lifecycle.</p>
+            <div class="grid">
+                <div class="card reveal"><h3>One Command</h3><ul>
+                    <li class="reveal">Detect or create PR from current branch</li>
+                    <li class="reveal">Trigger Greptile review via <code>@greptileai</code></li>
+                </ul></div>
+                <div class="card reveal"><h3>Closed Loop</h3><ul>
+                    <li class="reveal">Analyze comments &rarr; fix in parallel &rarr; push</li>
+                    <li class="reveal">Re-review &rarr; repeat until merge or hard stop</li>
+                </ul></div>
+                <div class="card reveal"><h3>Auto&#8209;Merge</h3><ul>
+                    <li class="reveal">Squash-merges at score &ge; 4/5 + zero unaddressed</li>
+                    <li class="reveal">Outputs final status report with iteration count</li>
+                </ul></div>
+            </div>
+            <div class="insight reveal">
+                <span class="insight-tag">Core Concept</span>
+                One command kicks off a closed loop: PR &rarr; review &rarr; fix &rarr; push &rarr; repeat until 4/5.
+            </div>
+        </div></div>
+        <span class="counter">2<span class="counter-sep">/</span>12</span>
+    </section>
+
+    <!-- SLIDE 3: Capabilities -->
+    <section class="slide" data-slide="3">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Capabilities</h2>
+            <p class="sub reveal">What the agent does end-to-end &mdash; zero human steps required.</p>
+            <div class="grid">
+                <div class="card reveal"><h3>PR &amp; Review</h3><ul>
+                    <li class="reveal">Auto-detects or creates PR from current branch</li>
+                    <li class="reveal">Triggers Greptile reviews via <code>@greptileai</code></li>
+                </ul></div>
+                <div class="card reveal"><h3>Fix &amp; Validate</h3><ul>
+                    <li class="reveal">Spawns parallel code-fixer agents (one per file)</li>
+                    <li class="reveal">Validates with <code>tsc</code>, <code>py_compile</code>, <code>go build</code>, <code>cargo</code></li>
+                </ul></div>
+                <div class="card reveal"><h3>Merge &amp; Report</h3><ul>
+                    <li class="reveal">Squash-merges when score &ge; 4/5 + no open issues</li>
+                    <li class="reveal">Tracks <code>HANDLED_IDS</code> to prevent duplicate work</li>
+                </ul></div>
+            </div>
+        </div></div>
+        <span class="counter">3<span class="counter-sep">/</span>12</span>
+    </section>
+
+    <!-- SLIDE 4: Safety Guarantees -->
+    <section class="slide" data-slide="4">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Safety Guarantees</h2>
+            <p class="sub reveal">Hard-coded NEVER rules &mdash; built into the agent definition.</p>
+            <div class="grid">
+                <div class="card reveal"><h3>No Loops</h3><ul>
+                    <li class="reveal">NEVER loops beyond 5 iterations</li>
+                    <li class="reveal">NEVER triggers review while one is in progress</li>
+                </ul></div>
+                <div class="card reveal"><h3>No Bad Merges</h3><ul>
+                    <li class="reveal">NEVER merges with score &le; 3/5</li>
+                    <li class="reveal">NEVER pushes code without validation first</li>
+                </ul></div>
+                <div class="card reveal"><h3>No Duplicates</h3><ul>
+                    <li class="reveal">NEVER re-fixes previously handled comments</li>
+                    <li class="reveal">HANDLED_IDS prevents all duplicate work</li>
+                </ul></div>
+            </div>
+            <div class="insight reveal">
+                <span class="insight-tag">Design Principle</span>
+                Fail safe, fail fast &mdash; every decision point has an explicit exit condition.
+            </div>
+        </div></div>
+        <span class="counter">4<span class="counter-sep">/</span>12</span>
+    </section>
+
+    <!-- SLIDE 5: The 5-Step Loop Architecture -->
+    <section class="slide" data-slide="5">
+        <div class="cs cp-3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">The 5&#8209;Step Loop</h2>
+            <p class="sub reveal">Cyclic execution with state tracking across iterations.</p>
+            <ul class="steps">
+                <li class="reveal"><strong>Initialize</strong> &mdash; Detect or create PR, set all state variables</li>
+                <li class="reveal"><strong>Check&shy;Review</strong> &mdash; Poll review status; wait if one is in progress</li>
+                <li class="reveal"><strong>Analyze&shy;State</strong> &mdash; Extract score, filter new unaddressed comments</li>
+                <li class="reveal"><strong>Fix&shy;Issues</strong> &mdash; Run parallel fixers, validate each file, push</li>
+                <li class="reveal"><strong>Re&#8209;Review</strong> &mdash; Wait 2 min for auto-trigger or post <code>@greptileai</code></li>
+            </ul>
+            <div class="insight reveal">
+                <span class="insight-tag">Exit Condition</span>
+                Steps 2&ndash;5 repeat until: score &ge; 4/5 AND unaddressed = 0, OR a hard stop triggers.
+            </div>
+        </div></div>
+        <span class="counter">5<span class="counter-sep">/</span>12</span>
+    </section>
+
+    <!-- SLIDE 6: State Variables -->
+    <section class="slide" data-slide="6">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">State Variables</h2>
+            <p class="sub reveal">Four variables maintained across all iterations of the loop.</p>
+            <div class="grid">
+                <div class="card reveal"><h3><code>ITERATION</code></h3><ul>
+                    <li class="reveal">Fix-push cycle counter (hard cap: 5)</li>
+                </ul></div>
+                <div class="card reveal"><h3><code>HANDLED_IDS</code></h3><ul>
+                    <li class="reveal">Array of comment IDs already fixed &mdash; never revisited</li>
+                </ul></div>
+                <div class="card reveal"><h3><code>LAST_PUSH_ISO</code></h3><ul>
+                    <li class="reveal">Timestamp of last push + 30s buffer for clock skew</li>
+                </ul></div>
+            </div>
+            <div class="insight reveal">
+                <span class="insight-tag">Why It Matters</span>
+                State persistence across iterations is what makes the loop safe and non-duplicating.
+            </div>
+        </div></div>
+        <span class="counter">6<span class="counter-sep">/</span>12</span>
+    </section>
+
+    <!-- SLIDE 7: Parallel Code-Fixer Agents -->
+    <section class="slide" data-slide="7">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Parallel Code&#8209;Fixers</h2>
+            <p class="sub reveal">One agent per affected file &mdash; parallel execution for maximum speed.</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Isolation</h3><ul>
+                    <li class="reveal">Issues grouped by file; Task tool spawns one agent each</li>
+                    <li class="reveal">Single-file scope prevents cascading changes</li>
+                </ul></div>
+                <div class="card reveal"><h3>Validation</h3><ul>
+                    <li class="reveal"><code>tsc --noEmit</code> / <code>py_compile</code> / <code>go build</code> / <code>cargo check</code></li>
+                    <li class="reveal">Fixes must pass compilation before commit</li>
+                </ul></div>
+                <div class="card reveal"><h3>Speed</h3><ul>
+                    <li class="reveal">5 file issues spawn 5 agents simultaneously</li>
+                    <li class="reveal">Only modified files are staged for commit</li>
+                </ul></div>
+            </div>
+            <div class="insight reveal">
+                <span class="insight-tag">Key Property</span>
+                Parallel + isolated + validated &mdash; fast fixes that can never corrupt other files.
+            </div>
+        </div></div>
+        <span class="counter">7<span class="counter-sep">/</span>12</span>
+    </section>
+
+    <!-- SLIDE 8: Greptile MCP Integration -->
+    <section class="slide" data-slide="8">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Greptile MCP Tools</h2>
+            <p class="sub reveal">Six MCP tools orchestrated in a precise sequence.</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Source of Truth</h3><ul>
+                    <li class="reveal"><code>get_merge_request()</code> &mdash; addressed vs. unaddressed</li>
+                    <li class="reveal"><code>list_code_reviews()</code> &mdash; PENDING / REVIEWING / COMPLETED</li>
+                </ul></div>
+                <div class="card reveal"><h3>Score &amp; Comments</h3><ul>
+                    <li class="reveal"><code>get_code_review()</code> &mdash; parses X/5 from review body</li>
+                    <li class="reveal"><code>list_merge_request_comments()</code> &mdash; <code>greptileGenerated=true</code></li>
+                </ul></div>
+                <div class="card reveal"><h3>Triggering</h3><ul>
+                    <li class="reveal">Via <code>gh pr comment @greptileai please review</code></li>
+                    <li class="reveal">2-min auto-wait before manual trigger</li>
+                </ul></div>
+            </div>
+            <div class="insight reveal">
+                <span class="insight-tag">Key Design Decision</span>
+                Reviews triggered via GitHub comment, NOT the MCP trigger tool &mdash; respects auto-review detection.
+            </div>
+        </div></div>
+        <span class="counter">8<span class="counter-sep">/</span>12</span>
+    </section>
+
+    <!-- SLIDE 9: Hard Stops -->
+    <section class="slide" data-slide="9">
+        <div class="cs cp-3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Hard Stop Conditions</h2>
+            <p class="sub reveal">Every decision point has an explicit exit &mdash; no unbounded loops.</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Success</h3><ul>
+                    <li class="reveal">Score &ge; 4/5 + 0 unaddressed &rarr; squash-merge</li>
+                </ul></div>
+                <div class="card reveal"><h3>Quality Fail</h3><ul>
+                    <li class="reveal">Score &le; 3/5 after review &rarr; stop and report</li>
+                    <li class="reveal">5 fix-push cycles completed &rarr; stop and report</li>
+                </ul></div>
+                <div class="card reveal"><h3>Technical Fail</h3><ul>
+                    <li class="reveal">Build validation fails &rarr; abort before push</li>
+                    <li class="reveal">No review in 10 min / no X/5 score &rarr; abort</li>
+                </ul></div>
+            </div>
+            <div class="insight reveal">
+                <span class="insight-tag">Principle</span>
+                The agent never enters an unbounded loop or pushes unvalidated code &mdash; period.
+            </div>
+        </div></div>
+        <span class="counter">9<span class="counter-sep">/</span>12</span>
+    </section>
+
+    <!-- SLIDE 10: Installation & Developer Workflow -->
+    <section class="slide" data-slide="10">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Installation</h2>
+            <p class="sub reveal">Prerequisites: Claude Code CLI, GitHub CLI, Greptile App + MCP Plugin.</p>
+            <ul class="steps">
+                <li class="reveal"><strong>Clone &amp; install</strong> &mdash; <code>git clone github.com/startappdev/agents &amp;&amp; ./install.sh</code></li>
+                <li class="reveal"><strong>Write code</strong> on a feature branch, commit and push</li>
+                <li class="reveal"><strong>Run <code>/greptile&#8209;review&#8209;loop</code></strong> &mdash; agent creates or finds PR automatically</li>
+                <li class="reveal"><strong>Greptile reviews</strong> &rarr; agent fixes &rarr; loop until 4/5 threshold</li>
+                <li class="reveal"><strong>Read the final status report</strong> &mdash; score, iterations, files fixed</li>
+            </ul>
+            <div class="insight reveal">
+                <span class="insight-tag">Required Files</span>
+                <code>greptile-review-loop.md</code> + <code>code-fixer.md</code> in <code>~/.claude/agents/</code>, slash command in <code>~/.claude/commands/</code>.
+            </div>
+        </div></div>
+        <span class="counter">10<span class="counter-sep">/</span>12</span>
+    </section>
+
+    <!-- SLIDE 11: The Autonomous Development Vision -->
+    <section class="slide" data-slide="11">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">The Vision</h2>
+            <p class="sub reveal">The autonomous development loop &mdash; human as intent expresser.</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Human</h3><ul>
+                    <li class="reveal">Express intent &mdash; write code and push to branch</li>
+                </ul></div>
+                <div class="card reveal"><h3>Review Agent</h3><ul>
+                    <li class="reveal">Greptile analyzes with full codebase context</li>
+                    <li class="reveal">Fix agent remediates findings in parallel</li>
+                </ul></div>
+                <div class="card reveal"><h3>Loop Until Done</h3><ul>
+                    <li class="reveal">Repeat until quality threshold met &rarr; auto-merge</li>
+                    <li class="reveal">Review bottleneck is eliminated entirely</li>
+                </ul></div>
+            </div>
+            <div class="insight reveal">
+                <span class="insight-tag">Key Insight</span>
+                The developer's role shifts from code reviewer to intent expresser.
+            </div>
+        </div></div>
+        <span class="counter">11<span class="counter-sep">/</span>12</span>
+    </section>
+
+    <!-- SLIDE 12: Why It Matters / Outro -->
+    <section class="slide" data-slide="12">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Why It Matters</h2>
+            <p class="sub reveal">One command. Zero human intervention. Code reviewed, fixed, and merged.</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Truly Autonomous</h3><ul>
+                    <li class="reveal">PR created, reviewed, fixed, and merged automatically</li>
+                    <li class="reveal">No review queue, no waiting for human reviewers</li>
+                </ul></div>
+                <div class="card reveal"><h3>Safety by Design</h3><ul>
+                    <li class="reveal">5-iteration cap, HANDLED_IDS, build validation</li>
+                    <li class="reveal">Every edge case has an explicit, hard-coded exit</li>
+                </ul></div>
+                <div class="card reveal"><h3>Future of Quality</h3><ul>
+                    <li class="reveal">Human writes code &rarr; agent reviews, fixes, merges</li>
+                    <li class="reveal">Review bottleneck eliminated at architecture level</li>
+                </ul></div>
+            </div>
+            <div class="insight reveal">
+                <span class="insight-tag">Bottom Line</span>
+                /greptile-review-loop is a proof of concept for the autonomous development loop &mdash; MIT License.
+            </div>
+        </div></div>
+        <span class="counter">12<span class="counter-sep">/</span>12</span>
+    </section>
+
+    <script>
+    (()=>{
+        const S=document.querySelectorAll('.slide'),D=document.querySelectorAll('.dot'),P=document.getElementById('progress');
+        let c=0,lock=false;const N=S.length;
+        const obs=new IntersectionObserver(es=>{es.forEach(e=>{
+            if(e.isIntersecting){e.target.classList.add('visible');c=[...S].indexOf(e.target);upd();}
+        });},{threshold:.3});
+        S.forEach(s=>obs.observe(s));
+        function go(i){if(i<0||i>=N||lock)return;lock=true;c=i;S[i].scrollIntoView({behavior:'smooth'});upd();setTimeout(()=>lock=false,700);}
+        function upd(){P.style.width=((c+1)/N*100)+'%';D.forEach((d,i)=>d.classList.toggle('active',i===c));}
+        document.addEventListener('keydown',e=>{
+            if(['ArrowDown','ArrowRight',' '].includes(e.key)){e.preventDefault();go(c+1);}
+            else if(['ArrowUp','ArrowLeft'].includes(e.key)){e.preventDefault();go(c-1);}
+        });
+        D.forEach((d,i)=>d.addEventListener('click',()=>go(i)));
+        let ty=0;
+        document.addEventListener('touchstart',e=>{ty=e.touches[0].clientY;},{passive:true});
+        document.addEventListener('touchend',e=>{const d=ty-e.changedTouches[0].clientY;if(Math.abs(d)>50)go(c+(d>0?1:-1));},{passive:true});
+        S[0].classList.add('visible');upd();
+    })();
+    </script>
+</body>
+</html>

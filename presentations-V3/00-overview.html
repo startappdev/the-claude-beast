@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Claude Beast &mdash; Complete Overview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:#111;--surface:#161616;--surface-2:#1a1a1a;
+            --text:#f0f0f0;--text-2:#a0a0a0;--text-3:#555;
+            --accent:#d97757;--accent-2:#e8956f;
+            --accent-bg:rgba(217,119,87,0.07);
+            --accent-border:rgba(217,119,87,0.18);
+            --border:rgba(255,255,255,0.05);
+            --sans:'Inter',-apple-system,sans-serif;
+            --mono:'JetBrains Mono',monospace;
+            --fs-hero:clamp(3.2rem,7vw,5rem);
+            --fs-h2:clamp(2.4rem,5.5vw,4rem);
+            --fs-h3:clamp(1.3rem,2.3vw,1.75rem);
+            --fs-body:clamp(1.1rem,1.8vw,1.45rem);
+            --fs-sm:clamp(1rem,1.5vw,1.25rem);
+            --fs-xs:clamp(0.85rem,1.1vw,1rem);
+            --pad:clamp(2rem,5vw,5rem);
+            --gap:clamp(1rem,2.5vw,2rem);
+            --ease:cubic-bezier(0.16,1,0.3,1);
+        }
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        html{height:100%;overflow-x:hidden;scroll-snap-type:y mandatory;scroll-behavior:smooth}
+        body{font-family:var(--sans);background:var(--bg);color:var(--text);height:100%;overflow-x:hidden;-webkit-font-smoothing:antialiased;font-weight:400;letter-spacing:-0.01em}
+
+        /* GRID NET BACKGROUND */
+        body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+        body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 40%,var(--bg) 100%);pointer-events:none;z-index:0}
+
+        /* SLIDES */
+        .slide{width:100vw;height:100vh;height:100dvh;overflow:hidden;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;position:relative;padding:var(--pad)}
+        .slide::before{content:'';position:absolute;top:18%;left:45%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(217,119,87,.04) 0%,transparent 65%);pointer-events:none;z-index:0}
+
+        /* GRADIENT BORDER CONTAINER */
+        .wrap{position:relative;max-width:min(1020px,calc(100vw - 2*var(--pad)));width:100%;z-index:2;border-radius:24px;padding:1px;background:linear-gradient(135deg,rgba(217,119,87,.25) 0%,rgba(217,119,87,.04) 30%,rgba(255,255,255,.03) 60%,rgba(217,119,87,.15) 100%);max-height:calc(100dvh - 2*var(--pad));overflow:hidden}
+        .container{background:var(--surface);border-radius:23px;padding:clamp(1.5rem,3vw,3.5rem);position:relative;overflow:hidden}
+        .container::before{content:'';position:absolute;top:0;left:0;right:0;height:100px;background:linear-gradient(180deg,rgba(217,119,87,.025),transparent);pointer-events:none}
+
+        /* LOGO BAR */
+        .logo-bar{display:flex;align-items:center;gap:10px;margin-bottom:clamp(1.5rem,2.5vh,2.5rem)}
+        .logo-bar svg{width:22px;height:22px;fill:var(--accent)}
+        .logo-bar .name{font-size:18px;font-weight:500;color:var(--text-2)}
+        .logo-bar .slash{color:var(--text-3);margin:0 3px;font-weight:300}
+
+        /* TITLE SLIDE */
+        .slide--title .wrap{overflow:visible}
+        .slide--title .container{display:grid;grid-template-columns:1fr auto;gap:clamp(2rem,4vw,4rem);align-items:center;overflow:visible}
+        .slide--title .content{position:relative;z-index:1}
+        .badge{font-family:var(--mono);font-size:var(--fs-xs);color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:clamp(0.8rem,1.5vh,1.5rem)}
+        .slide--title h1{font-size:var(--fs-hero);font-weight:500;letter-spacing:-0.04em;line-height:1.08;margin-bottom:clamp(0.6rem,1.2vh,1.2rem)}
+        .t-sub{font-size:clamp(1.2rem,2vw,1.7rem);font-weight:300;color:var(--text-2);line-height:1.55;max-width:520px}
+        .meta{font-family:var(--mono);font-size:var(--fs-xs);color:var(--text-3);margin-top:clamp(1.5rem,2.5vh,2.5rem);display:flex;align-items:center;gap:12px}
+        .meta .d{width:3px;height:3px;border-radius:50%;background:var(--text-3)}
+
+        /* CLAWD */
+        .icon-panel{display:flex;align-items:center;justify-content:center;position:relative}
+        .clawd-img{width:clamp(130px,16vw,200px);height:auto;opacity:.7;filter:drop-shadow(0 0 40px rgba(217,119,87,.15));image-rendering:pixelated;image-rendering:crisp-edges;position:relative;z-index:1}
+        .icon-ring{position:absolute;width:clamp(170px,20vw,260px);height:clamp(170px,20vw,260px);border-radius:50%;border:1px solid rgba(217,119,87,.08);animation:ringPulse 6s ease-in-out infinite}
+        .icon-ring::before{content:'';position:absolute;inset:-1px;border-radius:50%;border:1px solid transparent;border-top-color:rgba(217,119,87,.18);animation:ringRotate 8s linear infinite}
+        @keyframes ringPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.04);opacity:.7}}
+        @keyframes ringRotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+        /* CONTENT */
+        h2{font-size:var(--fs-h2);font-weight:500;letter-spacing:-0.035em;line-height:1.1;margin-bottom:clamp(0.4rem,1vh,0.8rem)}
+        .sub{font-size:var(--fs-sm);color:var(--text-3);margin-bottom:clamp(1.2rem,2.5vh,2.2rem);line-height:1.5}
+        h3{font-size:var(--fs-h3);font-weight:500;color:var(--accent-2);margin-bottom:clamp(0.4rem,0.8vh,0.7rem);letter-spacing:-0.01em;overflow-wrap:break-word}
+        ul{list-style:none;display:flex;flex-direction:column;gap:clamp(0.5rem,1vh,0.85rem)}
+        li{font-size:var(--fs-body);line-height:1.45;color:var(--text-2);padding-left:1.3em;position:relative;font-weight:300;overflow-wrap:break-word}
+        li::before{content:'';position:absolute;left:0;top:0.55em;width:5px;height:5px;border:1.5px solid var(--accent);border-radius:1.5px;transform:rotate(45deg);opacity:.45}
+        li strong{color:var(--text);font-weight:500}
+
+        /* CARDS */
+        .grid{display:flex;flex-direction:column;gap:clamp(0.35rem,0.7vh,0.55rem);margin-top:clamp(0.6rem,1.5vh,1.2rem)}
+        .card{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:clamp(0.6rem,1.2vw,0.9rem) clamp(1rem,2vw,1.4rem);min-width:0;overflow:hidden;display:grid;grid-template-columns:clamp(130px,20%,200px) 1fr;gap:0 clamp(0.8rem,1.5vw,1.2rem);align-items:center}
+        .card h3{font-size:var(--fs-h3);margin:0;padding-right:clamp(0.8rem,1.5vw,1.2rem);border-right:1px solid var(--border);overflow-wrap:break-word;align-self:center}
+        .card li{font-size:var(--fs-body);font-weight:300}
+        .card li::before{width:4px;height:4px}
+        .card ul{gap:clamp(0.25rem,0.5vh,0.4rem)}
+
+        /* INSIGHT */
+        .insight{margin-top:clamp(1.5rem,3vh,2.5rem);padding:clamp(1rem,1.5vh,1.4rem) clamp(1.2rem,2vw,1.8rem);background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;font-size:var(--fs-sm);color:var(--text-2);line-height:1.5;font-weight:300}
+        .insight-tag{font-family:var(--mono);font-size:var(--fs-xs);color:var(--accent);text-transform:uppercase;letter-spacing:2px;display:block;margin-bottom:4px}
+
+        /* STEPS */
+        .steps{list-style:none;display:flex;flex-direction:column;gap:clamp(0.6rem,1.2vh,1rem);counter-reset:step}
+        .steps li{counter-increment:step;padding-left:2.2em;font-size:var(--fs-body)}
+        .steps li::before{content:counter(step);position:absolute;left:0;top:0;width:1.5em;height:1.5em;border-radius:50%;background:var(--accent-bg);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:var(--fs-xs);color:var(--accent);font-weight:500;transform:none}
+        code{font-family:var(--mono);color:var(--accent);font-size:var(--fs-sm)}
+
+        /* TWO-COL LIST (closing slide) */
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:clamp(0.2rem,0.4vh,0.3rem) clamp(2rem,4vw,3rem);margin-top:clamp(0.6rem,1.5vh,1.2rem)}
+        .two-col li{font-size:var(--fs-sm);line-height:1.4;padding-left:0;color:var(--text-2);font-weight:300}
+        .two-col li::before{display:none}
+        .two-col li strong{color:var(--accent);font-weight:500;font-family:var(--mono);font-size:var(--fs-xs)}
+
+        /* 3D CUBES */
+        .cs{perspective:400px;position:absolute;z-index:0;pointer-events:none}
+        .cb{position:relative;transform-style:preserve-3d;animation:spin 28s linear infinite}
+        .ff{position:absolute;border:1px solid var(--accent);opacity:.08}
+        .c1{--s:70px;top:8%;right:8%;opacity:.25}.c1 .cb,.c1 .ff{width:70px;height:70px}
+        .c1 .cb{animation-duration:30s}
+        .c2{--s:32px;bottom:15%;left:7%;opacity:.18;animation:drift 10s ease-in-out infinite}.c2 .cb,.c2 .ff{width:32px;height:32px}
+        .c2 .cb{animation-duration:16s;animation-direction:reverse}
+        .c3{--s:24px;top:28%;left:12%;opacity:.14;animation:drift 13s ease-in-out infinite 2s}.c3 .cb,.c3 .ff{width:24px;height:24px}
+        .c3 .cb{animation-duration:14s}
+        @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(8px,-12px)}}
+        .ff.a{transform:translateZ(calc(var(--s)/2))}.ff.b{transform:rotateY(180deg) translateZ(calc(var(--s)/2))}
+        .ff.c{transform:rotateY(90deg) translateZ(calc(var(--s)/2))}.ff.d{transform:rotateY(-90deg) translateZ(calc(var(--s)/2))}
+        .ff.e{transform:rotateX(90deg) translateZ(calc(var(--s)/2))}.ff.f{transform:rotateX(-90deg) translateZ(calc(var(--s)/2))}
+        .cp-0{--s:55px;top:9%;right:7%;opacity:.22}.cp-0 .cb,.cp-0 .ff{width:55px;height:55px}
+        .cp-1{--s:45px;bottom:11%;right:8%;opacity:.18}.cp-1 .cb,.cp-1 .ff{width:45px;height:45px}
+        .cp-2{--s:50px;top:10%;left:6%;opacity:.18}.cp-2 .cb,.cp-2 .ff{width:50px;height:50px}
+        .cp-3{--s:40px;bottom:13%;left:7%;opacity:.2}.cp-3 .cb,.cp-3 .ff{width:40px;height:40px}
+        .cp-0 .cb{animation-duration:24s}.cp-1 .cb{animation-duration:20s;animation-direction:reverse}
+        .cp-2 .cb{animation-duration:22s}.cp-3 .cb{animation-duration:18s;animation-direction:reverse}
+        @keyframes spin{from{transform:rotateX(-15deg) rotateY(0)}to{transform:rotateX(-15deg) rotateY(360deg)}}
+
+        /* CHROME */
+        .counter{position:absolute;bottom:clamp(1rem,2vh,1.5rem);right:clamp(2rem,4vw,3rem);font-family:var(--mono);font-size:var(--fs-xs);color:var(--text-3);opacity:.35}
+        .counter-sep{margin:0 2px;opacity:.4}
+        #progress{position:fixed;top:0;left:0;height:2px;background:var(--accent);width:0%;z-index:200;transition:width .35s ease}
+        .dots{position:fixed;right:clamp(0.6rem,1.2vw,1.2rem);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:200}
+        .dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);opacity:.2;border:none;cursor:pointer;padding:0;transition:all .3s ease}
+        .dot.active{opacity:1;background:var(--accent);box-shadow:0 0 8px rgba(217,119,87,.3);width:7px;height:7px}
+        .dot:hover{opacity:.5}
+        .bottom-mark{position:fixed;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.12}
+
+        /* ANIMATIONS */
+        .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+        .slide.visible .reveal{opacity:1;transform:translateY(0)}
+        .slide.visible .reveal:nth-child(1){transition-delay:.05s}
+        .slide.visible .reveal:nth-child(2){transition-delay:.1s}
+        .slide.visible .reveal:nth-child(3){transition-delay:.15s}
+        .slide.visible .reveal:nth-child(4){transition-delay:.2s}
+        .slide.visible .reveal:nth-child(5){transition-delay:.25s}
+        .slide.visible .reveal:nth-child(6){transition-delay:.3s}
+        .slide.visible .reveal:nth-child(7){transition-delay:.35s}
+        .slide.visible .reveal:nth-child(8){transition-delay:.4s}
+        ul .reveal:nth-child(1){transition-delay:.06s}
+        ul .reveal:nth-child(2){transition-delay:.12s}
+        ul .reveal:nth-child(3){transition-delay:.18s}
+        ul .reveal:nth-child(4){transition-delay:.24s}
+        ul .reveal:nth-child(5){transition-delay:.3s}
+
+        /* RESPONSIVE */
+        @media(max-width:768px){.slide--title .container{grid-template-columns:1fr}.icon-panel{display:none}.card{grid-template-columns:1fr}.card h3{border-right:none;border-bottom:1px solid var(--border);padding-right:0;padding-bottom:clamp(0.3rem,0.5vh,0.5rem);margin-bottom:clamp(0.3rem,0.5vh,0.5rem)}.two-col{grid-template-columns:1fr}}
+        @media(max-height:850px){:root{--pad:clamp(1.5rem,4vw,3.5rem);--fs-h2:clamp(2rem,4.5vw,3.2rem);--fs-h3:clamp(1.15rem,2vw,1.5rem);--fs-body:clamp(1rem,1.5vw,1.2rem);--fs-sm:clamp(0.9rem,1.3vw,1.1rem)}}
+        @media(max-height:700px){:root{--pad:clamp(1.2rem,3vw,2.5rem);--fs-hero:clamp(2rem,4.5vw,3rem);--fs-h2:clamp(1.4rem,3vw,2rem);--fs-body:clamp(0.85rem,1.2vw,1rem)}}
+        @media(max-height:600px){:root{--pad:clamp(0.8rem,2vw,1.5rem);--fs-hero:clamp(1.6rem,3.5vw,2.4rem);--fs-h2:clamp(1.2rem,2.5vw,1.6rem);--fs-body:clamp(0.78rem,1vw,0.9rem)}.dots,.cs{display:none}body::before{display:none}}
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.15s!important}html{scroll-behavior:auto}}
+    </style>
+</head>
+<body>
+    <div id="progress"></div>
+    <nav class="dots" id="dots">
+        <button class="dot active" data-slide="0"></button>
+        <button class="dot" data-slide="1"></button>
+        <button class="dot" data-slide="2"></button>
+        <button class="dot" data-slide="3"></button>
+        <button class="dot" data-slide="4"></button>
+        <button class="dot" data-slide="5"></button>
+        <button class="dot" data-slide="6"></button>
+        <button class="dot" data-slide="7"></button>
+    </nav>
+    <div class="bottom-mark"></div>
+    <div class="cs c1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+    <div class="cs c2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+    <div class="cs c3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+
+    <!-- SLIDE 1: TITLE -->
+    <section class="slide slide--title" data-slide="1">
+        <div class="wrap"><div class="container">
+            <div class="content">
+                <div class="logo-bar reveal">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg>
+                    <span class="name">claude<span class="slash">/</span>code</span>
+                </div>
+                <div class="badge reveal">The Claude Beast Series</div>
+                <h1 class="reveal">Complete<br>Over&shy;view</h1>
+                <p class="t-sub reveal">17 Topics for Mastering Agentic Development &mdash; optimized for start.io Agentic Hackathons.</p>
+                <p class="meta reveal"><span>February 2026</span><span class="d"></span><span>All Episodes</span></p>
+            </div>
+            <div class="icon-panel">
+                <div class="icon-ring"></div>
+                <img class="clawd-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAADwCAYAAAAJkrPKAAADtklEQVR4nO3XAY2EMABFQbicGRQhBQ1IQRFyOBVct/tmBDQ/KeGl6zK5+9if0RuApu281mViP6MHADCGAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQNTv6AF123m9ev597K+ez3fzfX43LwCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAICo9T72Z/QIAP6fFwBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAEDUukzuPvZn9AagaTuvqf+hXgAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABR6+gBn+4+9ufN87fzevUOZt/Pd9/v7Ptn5wUAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgCwNP0BGxIig14UU2oAAAAASUVORK5CYII=" alt="Clawd mascot">
+            </div>
+        </div></div>
+        <span class="counter">1<span class="counter-sep">/</span>8</span>
+    </section>
+
+    <!-- SLIDE 2: FOUNDATION — Episodes 1-3 -->
+    <section class="slide" data-slide="2">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Foundation</h2>
+            <p class="sub reveal">Episodes 1&ndash;3 &mdash; Memory, requirements, and reusable workflows</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Ep&nbsp;1 &bull; System Prompt</h3><ul>
+                    <li class="reveal">CLAUDE.md gives Claude <strong>persistent project memory</strong> across sessions</li>
+                    <li class="reveal">6-level hierarchy from org policy down to auto memory</li>
+                </ul></div>
+                <div class="card reveal"><h3>Ep&nbsp;2 &bull; PRD</h3><ul>
+                    <li class="reveal">Product requirements evolved into <strong>AI programming interfaces</strong></li>
+                    <li class="reveal">Gold standard: PRD &rarr; Plan &rarr; Todo for structured dev</li>
+                </ul></div>
+                <div class="card reveal"><h3>Ep&nbsp;3 &bull; Skills</h3><ul>
+                    <li class="reveal">Markdown workflow templates with <strong>progressive disclosure</strong></li>
+                    <li class="reveal">Open standard adopted by 26+ platforms</li>
+                </ul></div>
+            </div>
+        </div></div>
+        <span class="counter">2<span class="counter-sep">/</span>8</span>
+    </section>
+
+    <!-- SLIDE 3: CONTROL LAYER — Episodes 4-6 -->
+    <section class="slide" data-slide="3">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Control Layer</h2>
+            <p class="sub reveal">Episodes 4&ndash;6 &mdash; Enforcement, intelligence, and discipline</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Ep&nbsp;4 &bull; Hooks</h3><ul>
+                    <li class="reveal"><strong>Deterministic control</strong> over probabilistic AI actions</li>
+                    <li class="reveal">14+ lifecycle events &mdash; CLAUDE.md suggests, hooks enforce</li>
+                </ul></div>
+                <div class="card reveal"><h3>Ep&nbsp;5 &bull; LSP</h3><ul>
+                    <li class="reveal">IDE-level code intelligence &mdash; <strong>900x faster</strong> navigation</li>
+                    <li class="reveal">9 operations: hover, goToDefinition, findReferences, and more</li>
+                </ul></div>
+                <div class="card reveal"><h3>Ep&nbsp;6 &bull; Plan Mode</h3><ul>
+                    <li class="reveal"><strong>Read-only exploration</strong> prevents premature coding</li>
+                    <li class="reveal">Use Opus to plan, Sonnet to execute (cost optimization)</li>
+                </ul></div>
+            </div>
+        </div></div>
+        <span class="counter">3<span class="counter-sep">/</span>8</span>
+    </section>
+
+    <!-- SLIDE 4: FRAMEWORKS & SEARCH — Episodes 7-9 -->
+    <section class="slide" data-slide="4">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Frame&shy;works &amp; Search</h2>
+            <p class="sub reveal">Episodes 7&ndash;9 &mdash; Structured development and live web knowledge</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Ep&nbsp;7 &bull; Super&shy;Powers / GSD</h3><ul>
+                    <li class="reveal">Four tools ending vibe coding &mdash; <strong>structure first, code second</strong></li>
+                    <li class="reveal">Combined 176K+ stars on GitHub</li>
+                </ul></div>
+                <div class="card reveal"><h3>Ep&nbsp;8 &bull; EXA MCP</h3><ul>
+                    <li class="reveal">AI-native search via <strong>MCP protocol</strong> &mdash; &ldquo;USB-C for AI&rdquo;</li>
+                    <li class="reveal">Deep Researcher for autonomous multi-step analysis</li>
+                </ul></div>
+                <div class="card reveal"><h3>Ep&nbsp;9 &bull; Atlassian MCP</h3><ul>
+                    <li class="reveal"><strong>35+ tools</strong> bridging Jira, Confluence, and Compass</li>
+                    <li class="reveal">Claude reads tickets and docs, then builds what they describe</li>
+                </ul></div>
+            </div>
+        </div></div>
+        <span class="counter">4<span class="counter-sep">/</span>8</span>
+    </section>
+
+    <!-- SLIDE 5: AGENTS — Episodes 10-12 -->
+    <section class="slide" data-slide="5">
+        <div class="cs cp-3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Agents</h2>
+            <p class="sub reveal">Episodes 10&ndash;12 &mdash; Parallelism, collaboration, and code review</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Ep&nbsp;10 &bull; Sub Agents</h3><ul>
+                    <li class="reveal">Isolated AI workers with <strong>separate context windows</strong></li>
+                    <li class="reveal">Hub-and-spoke &mdash; results flow back for synthesis</li>
+                </ul></div>
+                <div class="card reveal"><h3>Ep&nbsp;11 &bull; Agent Teams</h3><ul>
+                    <li class="reveal"><strong>Peer-to-peer messaging</strong> and shared task queues</li>
+                    <li class="reveal">Proven at scale: 16 agents built a 100K-line C compiler</li>
+                </ul></div>
+                <div class="card reveal"><h3>Ep&nbsp;12 &bull; Greptile</h3><ul>
+                    <li class="reveal">Full codebase graph analysis &mdash; <strong>82% bug catch rate</strong></li>
+                    <li class="reveal">v3 powered by Claude Opus &mdash; 256% improvement</li>
+                </ul></div>
+            </div>
+        </div></div>
+        <span class="counter">5<span class="counter-sep">/</span>8</span>
+    </section>
+
+    <!-- SLIDE 6: AUTOMATION — Episodes 13-14 -->
+    <section class="slide" data-slide="6">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Auto&shy;mation</h2>
+            <p class="sub reveal">Episodes 13&ndash;14 &mdash; Zero-intervention review and merge loops</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Ep&nbsp;13 &bull; /team-review</h3><ul>
+                    <li class="reveal"><strong>Three parallel reviewers</strong> &mdash; security, performance, tests</li>
+                    <li class="reveal">Synthesized report grouped by severity with fixes</li>
+                </ul></div>
+                <div class="card reveal"><h3>Ep&nbsp;14 &bull; /greptile-loop</h3><ul>
+                    <li class="reveal">Autonomous <strong>review &rarr; fix &rarr; push &rarr; re-review</strong> cycle</li>
+                    <li class="reveal">Auto-merge at score &ge; 4/5 with safety hard stops</li>
+                </ul></div>
+            </div>
+            <div class="insight reveal">
+                <span class="insight-tag">Key Insight</span>
+                One command, zero human intervention. PR is reviewed, fixed, and merged automatically until quality thresholds are met.
+            </div>
+        </div></div>
+        <span class="counter">6<span class="counter-sep">/</span>8</span>
+    </section>
+
+    <!-- SLIDE 7: INFRASTRUCTURE — Episodes 15-17 -->
+    <section class="slide" data-slide="7">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Infra&shy;structure</h2>
+            <p class="sub reveal">Episodes 15&ndash;17 &mdash; Isolation, routing, and voice input</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Ep&nbsp;15 &bull; Work&shy;trees</h3><ul>
+                    <li class="reveal">Git worktree isolation makes <strong>all parallelism safe</strong></li>
+                    <li class="reveal">Auto-cleanup &mdash; branch removed if no changes on exit</li>
+                </ul></div>
+                <div class="card reveal"><h3>Ep&nbsp;16 &bull; Portless</h3><ul>
+                    <li class="reveal"><strong>Named .localhost URLs</strong> for stable local dev endpoints</li>
+                    <li class="reveal">HTTPS/HTTP2 with auto-generated TLS certificates</li>
+                </ul></div>
+                <div class="card reveal"><h3>Ep&nbsp;17 &bull; Handy</h3><ul>
+                    <li class="reveal"><strong>100% offline</strong> speech-to-text &mdash; no audio leaves your machine</li>
+                    <li class="reveal">Speaking is 3-4x faster than typing for Claude prompts</li>
+                </ul></div>
+            </div>
+        </div></div>
+        <span class="counter">7<span class="counter-sep">/</span>8</span>
+    </section>
+
+    <!-- SLIDE 8: GO BUILD SOMETHING AMAZING -->
+    <section class="slide" data-slide="8">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Go Build Something Amazing</h2>
+            <p class="sub reveal">All 17 topics at a glance</p>
+            <ul class="two-col reveal">
+                <li><strong>01</strong> &nbsp;System Prompt (CLAUDE.md)</li>
+                <li><strong>10</strong> &nbsp;Sub Agents</li>
+                <li><strong>02</strong> &nbsp;PRD &amp; Requirements</li>
+                <li><strong>11</strong> &nbsp;Agent Teams</li>
+                <li><strong>03</strong> &nbsp;Claude Skills</li>
+                <li><strong>12</strong> &nbsp;Greptile Code Review</li>
+                <li><strong>04</strong> &nbsp;Claude Hooks</li>
+                <li><strong>13</strong> &nbsp;/team-review</li>
+                <li><strong>05</strong> &nbsp;LSP Integration</li>
+                <li><strong>14</strong> &nbsp;/greptile-review-loop</li>
+                <li><strong>06</strong> &nbsp;Plan Mode</li>
+                <li><strong>15</strong> &nbsp;Claude Worktrees</li>
+                <li><strong>07</strong> &nbsp;SuperPowers / GSD / Spec</li>
+                <li><strong>16</strong> &nbsp;Portless</li>
+                <li><strong>08</strong> &nbsp;EXA MCP Search</li>
+                <li><strong>17</strong> &nbsp;Handy STT</li>
+                <li><strong>09</strong> &nbsp;Atlassian MCP</li>
+                <li style="color:var(--accent);font-weight:500">The Claude Beast &nbsp;&bull;&nbsp; start.io</li>
+            </ul>
+        </div></div>
+        <span class="counter">8<span class="counter-sep">/</span>8</span>
+    </section>
+
+    <script>
+    (()=>{
+        const S=document.querySelectorAll('.slide'),D=document.querySelectorAll('.dot'),P=document.getElementById('progress');
+        let c=0,lock=false;const N=S.length;
+        const obs=new IntersectionObserver(es=>{es.forEach(e=>{
+            if(e.isIntersecting){e.target.classList.add('visible');c=[...S].indexOf(e.target);upd();}
+        });},{threshold:.3});
+        S.forEach(s=>obs.observe(s));
+        function go(i){if(i<0||i>=N||lock)return;lock=true;c=i;S[i].scrollIntoView({behavior:'smooth'});upd();setTimeout(()=>lock=false,700);}
+        function upd(){P.style.width=((c+1)/N*100)+'%';D.forEach((d,i)=>d.classList.toggle('active',i===c));}
+        document.addEventListener('keydown',e=>{
+            if(['ArrowDown','ArrowRight',' '].includes(e.key)){e.preventDefault();go(c+1);}
+            else if(['ArrowUp','ArrowLeft'].includes(e.key)){e.preventDefault();go(c-1);}
+        });
+        D.forEach((d,i)=>d.addEventListener('click',()=>go(i)));
+        let ty=0;
+        document.addEventListener('touchstart',e=>{ty=e.touches[0].clientY;},{passive:true});
+        document.addEventListener('touchend',e=>{const d=ty-e.changedTouches[0].clientY;if(Math.abs(d)>50)go(c+(d>0?1:-1));},{passive:true});
+        S[0].classList.add('visible');upd();
+    })();
+    </script>
+</body>
+</html>
