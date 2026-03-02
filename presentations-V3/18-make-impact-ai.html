@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Make an Impact with AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:#111;--surface:#161616;--surface-2:#1a1a1a;
+            --text:#f0f0f0;--text-2:#a0a0a0;--text-3:#555;
+            --accent:#d97757;--accent-2:#e8956f;
+            --accent-bg:rgba(217,119,87,0.07);
+            --accent-border:rgba(217,119,87,0.18);
+            --border:rgba(255,255,255,0.05);
+            --sans:'Inter',-apple-system,sans-serif;
+            --mono:'JetBrains Mono',monospace;
+            --fs-hero:clamp(3.2rem,7vw,5rem);
+            --fs-h2:clamp(2.4rem,5.5vw,4rem);
+            --fs-h3:clamp(1.3rem,2.3vw,1.75rem);
+            --fs-body:clamp(1.1rem,1.8vw,1.45rem);
+            --fs-sm:clamp(1rem,1.5vw,1.25rem);
+            --fs-xs:clamp(0.85rem,1.1vw,1rem);
+            --pad:clamp(2rem,5vw,5rem);
+            --gap:clamp(1rem,2.5vw,2rem);
+            --ease:cubic-bezier(0.16,1,0.3,1);
+            /* Extra colors for three-bucket slide */
+            --red:#e85454;--red-bg:rgba(232,84,84,0.07);--red-border:rgba(232,84,84,0.18);
+            --amber:#e8b654;--amber-bg:rgba(232,182,84,0.07);--amber-border:rgba(232,182,84,0.18);
+            --green:#54b878;--green-bg:rgba(84,184,120,0.07);--green-border:rgba(84,184,120,0.18);
+        }
+        *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+        html{height:100%;overflow-x:hidden;scroll-snap-type:y mandatory;scroll-behavior:smooth}
+        body{font-family:var(--sans);background:var(--bg);color:var(--text);height:100%;overflow-x:hidden;-webkit-font-smoothing:antialiased;font-weight:400;letter-spacing:-0.01em}
+
+        /* GRID NET BACKGROUND */
+        body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+        body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 50% 50%,transparent 40%,var(--bg) 100%);pointer-events:none;z-index:0}
+
+        /* SLIDES */
+        .slide{width:100vw;height:100vh;height:100dvh;overflow:hidden;scroll-snap-align:start;display:flex;align-items:center;justify-content:center;position:relative;padding:var(--pad)}
+        .slide::before{content:'';position:absolute;top:18%;left:45%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(ellipse,rgba(217,119,87,.04) 0%,transparent 65%);pointer-events:none;z-index:0}
+
+        /* GRADIENT BORDER CONTAINER */
+        .wrap{position:relative;max-width:min(1020px,calc(100vw - 2*var(--pad)));width:100%;z-index:2;border-radius:24px;padding:1px;background:linear-gradient(135deg,rgba(217,119,87,.25) 0%,rgba(217,119,87,.04) 30%,rgba(255,255,255,.03) 60%,rgba(217,119,87,.15) 100%);max-height:calc(100dvh - 2*var(--pad));overflow:hidden}
+        .container{background:var(--surface);border-radius:23px;padding:clamp(1.5rem,3vw,3.5rem);position:relative;overflow:hidden}
+        .container::before{content:'';position:absolute;top:0;left:0;right:0;height:100px;background:linear-gradient(180deg,rgba(217,119,87,.025),transparent);pointer-events:none}
+
+        /* LOGO BAR */
+        .logo-bar{display:flex;align-items:center;gap:10px;margin-bottom:clamp(1.5rem,2.5vh,2.5rem)}
+        .logo-bar svg{width:22px;height:22px;fill:var(--accent)}
+        .logo-bar .name{font-size:18px;font-weight:500;color:var(--text-2)}
+        .logo-bar .slash{color:var(--text-3);margin:0 3px;font-weight:300}
+
+        /* TITLE SLIDE */
+        .slide--title .wrap{overflow:visible}
+        .slide--title .container{display:grid;grid-template-columns:1fr auto;gap:clamp(2rem,4vw,4rem);align-items:center;overflow:visible}
+        .slide--title .content{position:relative;z-index:1}
+        .badge{font-family:var(--mono);font-size:var(--fs-xs);color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:clamp(0.8rem,1.5vh,1.5rem)}
+        .slide--title h1{font-size:var(--fs-hero);font-weight:500;letter-spacing:-0.04em;line-height:1.08;margin-bottom:clamp(0.6rem,1.2vh,1.2rem)}
+        .t-sub{font-size:clamp(1.2rem,2vw,1.7rem);font-weight:300;color:var(--text-2);line-height:1.55;max-width:520px}
+        .meta{font-family:var(--mono);font-size:var(--fs-xs);color:var(--text-3);margin-top:clamp(1.5rem,2.5vh,2.5rem);display:flex;align-items:center;gap:12px}
+        .meta .d{width:3px;height:3px;border-radius:50%;background:var(--text-3)}
+
+        /* ICON PANEL (title slide right side) */
+        .icon-panel{display:flex;align-items:center;justify-content:center;position:relative}
+        .clawd-img{width:clamp(130px,16vw,200px);height:auto;opacity:.7;filter:drop-shadow(0 0 40px rgba(217,119,87,.15));image-rendering:pixelated;image-rendering:crisp-edges;position:relative;z-index:1}
+        .icon-ring{position:absolute;width:clamp(170px,20vw,260px);height:clamp(170px,20vw,260px);border-radius:50%;border:1px solid rgba(217,119,87,.08);animation:ringPulse 6s ease-in-out infinite}
+        .icon-ring::before{content:'';position:absolute;inset:-1px;border-radius:50%;border:1px solid transparent;border-top-color:rgba(217,119,87,.18);animation:ringRotate 8s linear infinite}
+        @keyframes ringPulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.04);opacity:.7}}
+        @keyframes ringRotate{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+
+        /* CONTENT */
+        h2{font-size:var(--fs-h2);font-weight:500;letter-spacing:-0.035em;line-height:1.1;margin-bottom:clamp(0.4rem,1vh,0.8rem)}
+        .sub{font-size:var(--fs-sm);color:var(--text-3);margin-bottom:clamp(1.2rem,2.5vh,2.2rem);line-height:1.5}
+        h3{font-size:var(--fs-h3);font-weight:500;color:var(--accent-2);margin-bottom:clamp(0.4rem,0.8vh,0.7rem);letter-spacing:-0.01em;overflow-wrap:break-word}
+        ul{list-style:none;display:flex;flex-direction:column;gap:clamp(0.5rem,1vh,0.85rem)}
+        li{font-size:var(--fs-body);line-height:1.45;color:var(--text-2);padding-left:1.3em;position:relative;font-weight:300;overflow-wrap:break-word}
+        li::before{content:'';position:absolute;left:0;top:0.55em;width:5px;height:5px;border:1.5px solid var(--accent);border-radius:1.5px;transform:rotate(45deg);opacity:.45}
+        li strong{color:var(--text);font-weight:500}
+
+        /* CARDS */
+        .grid{display:flex;flex-direction:column;gap:clamp(0.35rem,0.7vh,0.55rem);margin-top:clamp(0.6rem,1.5vh,1.2rem)}
+        .card{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:clamp(0.6rem,1.2vw,0.9rem) clamp(1rem,2vw,1.4rem);min-width:0;overflow:hidden;display:grid;grid-template-columns:clamp(130px,20%,200px) 1fr;gap:0 clamp(0.8rem,1.5vw,1.2rem);align-items:center}
+        .card h3{font-size:var(--fs-h3);margin:0;padding-right:clamp(0.8rem,1.5vw,1.2rem);border-right:1px solid var(--border);overflow-wrap:break-word;align-self:center}
+        .card li{font-size:var(--fs-body);font-weight:300}
+        .card li::before{width:4px;height:4px}
+        .card ul{gap:clamp(0.25rem,0.5vh,0.4rem)}
+
+        /* WIDE CARDS (full width, no title column) */
+        .card-wide{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:clamp(0.6rem,1.2vw,0.9rem) clamp(1rem,2vw,1.4rem);min-width:0;overflow:hidden}
+        .card-wide h3{font-size:var(--fs-h3);margin-bottom:clamp(0.3rem,0.5vh,0.5rem)}
+        .card-wide li{font-size:var(--fs-sm);font-weight:300}
+        .card-wide li::before{width:4px;height:4px}
+        .card-wide ul{gap:clamp(0.2rem,0.4vh,0.35rem)}
+
+        /* THREE COLUMN PILLARS */
+        .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(0.5rem,1vw,1rem);margin-top:clamp(0.6rem,1.5vh,1.2rem)}
+        .pillar{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:clamp(0.7rem,1.2vw,1rem);overflow:hidden}
+        .pillar-head{font-family:var(--mono);font-size:var(--fs-xs);color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:2px}
+        .pillar-q{font-size:var(--fs-sm);color:var(--text-3);margin-bottom:clamp(0.4rem,0.8vh,0.6rem);font-style:italic;font-weight:300}
+        .pillar li{font-size:var(--fs-sm);font-weight:300;padding-left:1em}
+        .pillar li::before{width:4px;height:4px;top:0.5em}
+        .pillar ul{gap:clamp(0.15rem,0.3vh,0.3rem)}
+
+        /* THREE-BUCKET CARDS */
+        .bucket{border-radius:12px;padding:clamp(0.6rem,1.2vw,0.9rem) clamp(1rem,2vw,1.2rem);min-width:0;overflow:hidden}
+        .bucket.red{background:var(--red-bg);border:1px solid var(--red-border)}
+        .bucket.red h3{color:var(--red)}
+        .bucket.amber{background:var(--amber-bg);border:1px solid var(--amber-border)}
+        .bucket.amber h3{color:var(--amber)}
+        .bucket.green{background:var(--green-bg);border:1px solid var(--green-border)}
+        .bucket.green h3{color:var(--green)}
+        .bucket h3{font-size:var(--fs-h3);margin-bottom:clamp(0.2rem,0.4vh,0.4rem)}
+        .bucket li{font-size:var(--fs-sm);font-weight:300}
+        .bucket li::before{width:4px;height:4px}
+        .bucket ul{gap:clamp(0.15rem,0.3vh,0.3rem)}
+
+        /* INSIGHT */
+        .insight{margin-top:clamp(1rem,2vh,2rem);padding:clamp(0.8rem,1.2vh,1.2rem) clamp(1.2rem,2vw,1.8rem);background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:10px;font-size:var(--fs-sm);color:var(--text-2);line-height:1.5;font-weight:300}
+        .insight-tag{font-family:var(--mono);font-size:var(--fs-xs);color:var(--accent);text-transform:uppercase;letter-spacing:2px;display:block;margin-bottom:4px}
+
+        /* STEPS */
+        .steps{list-style:none;display:flex;flex-direction:column;gap:clamp(0.5rem,1vh,0.85rem);counter-reset:step}
+        .steps li{counter-increment:step;padding-left:2.2em;font-size:var(--fs-body)}
+        .steps li::before{content:counter(step);position:absolute;left:0;top:0;width:1.5em;height:1.5em;border-radius:50%;background:var(--accent-bg);border:1px solid var(--accent-border);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:var(--fs-xs);color:var(--accent);font-weight:500;transform:none}
+        code{font-family:var(--mono);color:var(--accent);font-size:var(--fs-sm)}
+
+        /* SECTION DIVIDER */
+        .slide--section h2{font-size:var(--fs-hero);text-align:center}
+        .slide--section .sub{text-align:center;max-width:600px;margin-left:auto;margin-right:auto}
+        .section-num{font-family:var(--mono);font-size:clamp(4rem,10vw,8rem);color:var(--accent);opacity:.08;position:absolute;top:10%;right:10%;font-weight:600;z-index:0;line-height:1}
+
+        /* BIG QUOTE (closing slide) */
+        .big-quote{font-size:var(--fs-h3);font-weight:300;color:var(--text-2);line-height:1.6;border-left:3px solid var(--accent);padding-left:clamp(1rem,2vw,1.5rem);margin-top:clamp(1rem,2vh,2rem);font-style:italic}
+
+        /* J-CURVE SVG */
+        .j-curve-wrap{display:flex;justify-content:center;margin:clamp(0.8rem,1.5vh,1.5rem) 0}
+        .j-curve-wrap svg{width:min(100%,600px);height:auto;max-height:min(25vh,180px)}
+
+        /* CAPABILITIES MINI-GRID */
+        .cap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(0.3rem,0.6vw,0.5rem);margin-top:clamp(0.6rem,1.5vh,1rem)}
+        .cap-grid .cap-item{background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:clamp(0.4rem,0.8vw,0.6rem);text-align:center;font-size:var(--fs-sm);color:var(--text-2);font-weight:300;line-height:1.3}
+        .cap-grid .cap-item .cap-num{font-family:var(--mono);font-size:var(--fs-xs);color:var(--accent);display:block;margin-bottom:2px}
+        .cap-grid .cap-item:last-child{grid-column:2/4}
+
+        /* TWO-COL LIST */
+        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:clamp(0.2rem,0.4vh,0.3rem) clamp(2rem,4vw,3rem);margin-top:clamp(0.6rem,1.5vh,1.2rem)}
+        .two-col li{font-size:var(--fs-sm);line-height:1.4;padding-left:0;color:var(--text-2);font-weight:300}
+        .two-col li::before{display:none}
+        .two-col li strong{color:var(--accent);font-weight:500;font-family:var(--mono);font-size:var(--fs-xs)}
+
+        /* 3D CUBES */
+        .cs{perspective:400px;position:absolute;z-index:0;pointer-events:none}
+        .cb{position:relative;transform-style:preserve-3d;animation:spin 28s linear infinite}
+        .ff{position:absolute;border:1px solid var(--accent);opacity:.08}
+        .c1{--s:70px;top:8%;right:8%;opacity:.25}.c1 .cb,.c1 .ff{width:70px;height:70px}
+        .c1 .cb{animation-duration:30s}
+        .c2{--s:32px;bottom:15%;left:7%;opacity:.18;animation:drift 10s ease-in-out infinite}.c2 .cb,.c2 .ff{width:32px;height:32px}
+        .c2 .cb{animation-duration:16s;animation-direction:reverse}
+        .c3{--s:24px;top:28%;left:12%;opacity:.14;animation:drift 13s ease-in-out infinite 2s}.c3 .cb,.c3 .ff{width:24px;height:24px}
+        .c3 .cb{animation-duration:14s}
+        @keyframes drift{0%,100%{transform:translate(0,0)}50%{transform:translate(8px,-12px)}}
+        .ff.a{transform:translateZ(calc(var(--s)/2))}.ff.b{transform:rotateY(180deg) translateZ(calc(var(--s)/2))}
+        .ff.c{transform:rotateY(90deg) translateZ(calc(var(--s)/2))}.ff.d{transform:rotateY(-90deg) translateZ(calc(var(--s)/2))}
+        .ff.e{transform:rotateX(90deg) translateZ(calc(var(--s)/2))}.ff.f{transform:rotateX(-90deg) translateZ(calc(var(--s)/2))}
+        .cp-0{--s:55px;top:9%;right:7%;opacity:.22}.cp-0 .cb,.cp-0 .ff{width:55px;height:55px}
+        .cp-1{--s:45px;bottom:11%;right:8%;opacity:.18}.cp-1 .cb,.cp-1 .ff{width:45px;height:45px}
+        .cp-2{--s:50px;top:10%;left:6%;opacity:.18}.cp-2 .cb,.cp-2 .ff{width:50px;height:50px}
+        .cp-3{--s:40px;bottom:13%;left:7%;opacity:.2}.cp-3 .cb,.cp-3 .ff{width:40px;height:40px}
+        .cp-0 .cb{animation-duration:24s}.cp-1 .cb{animation-duration:20s;animation-direction:reverse}
+        .cp-2 .cb{animation-duration:22s}.cp-3 .cb{animation-duration:18s;animation-direction:reverse}
+        @keyframes spin{from{transform:rotateX(-15deg) rotateY(0)}to{transform:rotateX(-15deg) rotateY(360deg)}}
+
+        /* CHROME */
+        .counter{position:absolute;bottom:clamp(1rem,2vh,1.5rem);right:clamp(2rem,4vw,3rem);font-family:var(--mono);font-size:var(--fs-xs);color:var(--text-3);opacity:.35}
+        .counter-sep{margin:0 2px;opacity:.4}
+        #progress{position:fixed;top:0;left:0;height:2px;background:var(--accent);width:0%;z-index:200;transition:width .35s ease}
+        .dots{position:fixed;right:clamp(0.6rem,1.2vw,1.2rem);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:6px;z-index:200}
+        .dot{width:6px;height:6px;border-radius:50%;background:var(--text-3);opacity:.2;border:none;cursor:pointer;padding:0;transition:all .3s ease}
+        .dot.active{opacity:1;background:var(--accent);box-shadow:0 0 8px rgba(217,119,87,.3);width:7px;height:7px}
+        .dot:hover{opacity:.5}
+        .bottom-mark{position:fixed;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.12}
+
+        /* ANIMATIONS */
+        .reveal{opacity:0;transform:translateY(14px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+        .slide.visible .reveal{opacity:1;transform:translateY(0)}
+        .slide.visible .reveal:nth-child(1){transition-delay:.05s}
+        .slide.visible .reveal:nth-child(2){transition-delay:.1s}
+        .slide.visible .reveal:nth-child(3){transition-delay:.15s}
+        .slide.visible .reveal:nth-child(4){transition-delay:.2s}
+        .slide.visible .reveal:nth-child(5){transition-delay:.25s}
+        .slide.visible .reveal:nth-child(6){transition-delay:.3s}
+        .slide.visible .reveal:nth-child(7){transition-delay:.35s}
+        .slide.visible .reveal:nth-child(8){transition-delay:.4s}
+        .slide.visible .reveal:nth-child(9){transition-delay:.45s}
+        .slide.visible .reveal:nth-child(10){transition-delay:.5s}
+        ul .reveal:nth-child(1){transition-delay:.06s}
+        ul .reveal:nth-child(2){transition-delay:.12s}
+        ul .reveal:nth-child(3){transition-delay:.18s}
+        ul .reveal:nth-child(4){transition-delay:.24s}
+        ul .reveal:nth-child(5){transition-delay:.3s}
+        ul .reveal:nth-child(6){transition-delay:.36s}
+
+        /* RESPONSIVE */
+        @media(max-width:768px){.slide--title .container{grid-template-columns:1fr}.icon-panel{display:none}.card{grid-template-columns:1fr}.card h3{border-right:none;border-bottom:1px solid var(--border);padding-right:0;padding-bottom:clamp(0.3rem,0.5vh,0.5rem);margin-bottom:clamp(0.3rem,0.5vh,0.5rem)}.two-col{grid-template-columns:1fr}.pillars{grid-template-columns:1fr}.cap-grid{grid-template-columns:repeat(2,1fr)}.cap-grid .cap-item:last-child{grid-column:span 2}}
+        @media(max-height:850px){:root{--pad:clamp(1.5rem,4vw,3.5rem);--fs-h2:clamp(2rem,4.5vw,3.2rem);--fs-h3:clamp(1.15rem,2vw,1.5rem);--fs-body:clamp(1rem,1.5vw,1.2rem);--fs-sm:clamp(0.9rem,1.3vw,1.1rem)}}
+        @media(max-height:700px){:root{--pad:clamp(1.2rem,3vw,2.5rem);--fs-hero:clamp(2rem,4.5vw,3rem);--fs-h2:clamp(1.4rem,3vw,2rem);--fs-body:clamp(0.85rem,1.2vw,1rem)}}
+        @media(max-height:600px){:root{--pad:clamp(0.8rem,2vw,1.5rem);--fs-hero:clamp(1.6rem,3.5vw,2.4rem);--fs-h2:clamp(1.2rem,2.5vw,1.6rem);--fs-body:clamp(0.78rem,1vw,0.9rem)}.dots,.cs{display:none}body::before{display:none}}
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.15s!important}html{scroll-behavior:auto}}
+    </style>
+</head>
+<body>
+    <div id="progress"></div>
+    <nav class="dots" id="dots"></nav>
+    <div class="bottom-mark"></div>
+    <div class="cs c1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+    <div class="cs c2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+    <div class="cs c3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+
+    <!-- ==========================================
+         SLIDE 1: TITLE
+         Speaker notes: Welcome everyone. Today we're going to talk about something critical —
+         not whether we should use AI, but how to actually make it count. The difference between
+         organizations that transform with AI and those that just buy licenses is growing fast.
+         ========================================== -->
+    <section class="slide slide--title" data-slide="1">
+        <div class="wrap"><div class="container">
+            <div class="content">
+                <div class="logo-bar reveal">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg>
+                    <span class="name">claude<span class="slash">/</span>code</span>
+                </div>
+                <div class="badge reveal">Leadership Briefing</div>
+                <h1 class="reveal">Make an Impact with&nbsp;AI</h1>
+                <p class="t-sub reveal">Moving from AI adoption to organizational transformation.</p>
+                <p class="meta reveal"><span>March 2026</span><span class="d"></span><span>Strategy</span><span class="d"></span><span>start.io</span></p>
+            </div>
+            <div class="icon-panel">
+                <div class="icon-ring"></div>
+                <img class="clawd-img" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAYAAAADwCAYAAAAJkrPKAAADtklEQVR4nO3XAY2EMABFQbicGRQhBQ1IQRFyOBVct/tmBDQ/KeGl6zK5+9if0RuApu281mViP6MHADCGAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQNTv6AF123m9ev597K+ez3fzfX43LwCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAIAoAQCIEgCAKAEAiBIAgCgBAIgSAICo9T72Z/QIAP6fFwBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAECUAABECQBAlAAARAkAQJQAAEQJAEDUukzuPvZn9AagaTuvqf+hXgAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABR6+gBn+4+9ufN87fzevUOZt/Pd9/v7Ptn5wUAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgAQJQAAUQIAECUAAFECABAlAABRAgCwNP0BGxIig14UU2oAAAAASUVORK5CYII=" alt="Clawd mascot">
+            </div>
+        </div></div>
+        <span class="counter">1<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 2: THE AI ILLUSION
+         Speaker notes: Here's the uncomfortable truth. Most organizations treat AI like a checkbox —
+         buy licenses, deploy tools, declare victory. But AI is an amplifier. It magnifies whatever
+         you already are. Strong foundations? AI makes you stronger. Broken processes? AI makes them
+         break faster. Individual productivity gains get absorbed by downstream bottlenecks — slow CI,
+         manual reviews, deployment queues. The code just piles up waiting.
+         ========================================== -->
+    <section class="slide" data-slide="2">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">&ldquo;Using AI&rdquo; &ne; Making Impact</h2>
+            <p class="sub reveal">The AI illusion &mdash; why adoption alone changes nothing</p>
+            <ul>
+                <li class="reveal">Most organizations <strong>buy licenses and hope for magic</strong> &mdash; that is not a strategy</li>
+                <li class="reveal">AI is an <strong>amplifier</strong> &mdash; it magnifies the strengths of high performers and the dysfunctions of struggling orgs</li>
+                <li class="reveal">If your foundation is broken, <strong>AI makes it worse faster</strong></li>
+                <li class="reveal">Individual productivity gains get <strong>swallowed by downstream bottlenecks</strong></li>
+            </ul>
+        </div></div>
+        <span class="counter">2<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 3: THE REAL QUESTION
+         Speaker notes: So the real question we need to ask ourselves isn't "are we using AI?" —
+         that's table stakes. The question is "is AI changing our outcomes?" Are we shipping faster?
+         Is quality improving? Are developers happier? If we can't answer those questions with data,
+         we're just spending money. And the gap between orgs that truly transform vs. those that just
+         purchase is widening every single quarter.
+         ========================================== -->
+    <section class="slide" data-slide="3">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">The Real Question</h2>
+            <p class="sub reveal">Not &ldquo;are we using AI?&rdquo; but &ldquo;is AI changing our outcomes?&rdquo;</p>
+            <ul>
+                <li class="reveal"><strong>Shift from activity to impact</strong> &mdash; adoption metrics are vanity without outcome data</li>
+                <li class="reveal">Having licenses is <strong>table stakes</strong>, not a strategy</li>
+                <li class="reveal">The gap between orgs that <strong>transform</strong> vs. orgs that just <strong>purchase</strong> is widening</li>
+            </ul>
+            <div class="insight reveal">
+                <span class="insight-tag">The core challenge</span>
+                We need to move from &ldquo;we have AI tools&rdquo; to &ldquo;AI is measurably changing how we build, ship, and operate.&rdquo;
+            </div>
+        </div></div>
+        <span class="counter">3<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 4: THE LICENSE FALLACY
+         Speaker notes: Let me paint a picture. You give every developer an AI coding assistant.
+         They write code faster. Great. But that code now piles up at the code review bottleneck.
+         Reviews take just as long. CI is just as slow. Deployment is still manual. You've sped up
+         one step in a 10-step pipeline. That's like widening one lane on a highway — the traffic
+         jam just moves downstream. Tools serve the improvement work. They don't constitute it.
+         ========================================== -->
+    <section class="slide" data-slide="4">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">The License Fallacy</h2>
+            <p class="sub reveal">Buying tools without fixing the environment = pouring water into a leaky bucket</p>
+            <ul>
+                <li class="reveal">AI-generated code piling up at a <strong>manual review bottleneck</strong> just makes the bottleneck worse</li>
+                <li class="reveal"><strong>Speed without safety</strong> is counterproductive &mdash; faster failures are still failures</li>
+                <li class="reveal">Tools serve <strong>improvement work</strong> &mdash; they don&rsquo;t constitute it</li>
+                <li class="reveal">Widening one lane on the highway <strong>just moves the traffic jam</strong> downstream</li>
+            </ul>
+        </div></div>
+        <span class="counter">4<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 5: TRUST IS THE BOTTLENECK
+         Speaker notes: Here's something most people miss — AI adoption is fundamentally a trust
+         problem, not a technology problem. There's a self-reinforcing cycle: developers who trust
+         AI use it more, get better results, and trust it even more. But the reverse is also true.
+         Low trust means low usage, which means no results, which confirms the skepticism. We need
+         to build trust through clear policies, strong safety nets like code review and testing, and
+         crucially — we should never mandate usage. Mandating AI undermines the very trust we need.
+         ========================================== -->
+    <section class="slide" data-slide="5">
+        <div class="cs cp-3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Trust Is the Bottleneck</h2>
+            <p class="sub reveal">AI adoption is fundamentally a trust problem, not a technology problem</p>
+            <ul>
+                <li class="reveal"><strong>Virtuous cycle:</strong> trust &rarr; adoption &rarr; results &rarr; more trust</li>
+                <li class="reveal"><strong>Vicious cycle:</strong> low trust &rarr; low usage &rarr; no benefits &rarr; confirmed skepticism</li>
+                <li class="reveal">Clear policies + safety nets (code review, automated tests) = <strong>trust builders</strong></li>
+                <li class="reveal">Don&rsquo;t mandate usage &mdash; <strong>mandating undermines trust</strong></li>
+            </ul>
+        </div></div>
+        <span class="counter">5<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 6: SEVEN CAPABILITIES
+         Speaker notes: Research shows there are seven specific capabilities that determine whether
+         AI delivers real organizational value. Without these in place, AI adoption has minimal impact.
+         These aren't nice-to-haves — they're the real investment. Notice this isn't about buying
+         better AI tools. It's about building the organizational foundation that makes AI work.
+         ========================================== -->
+    <section class="slide" data-slide="6">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Seven Capabilities That Unlock AI</h2>
+            <p class="sub reveal">These are the real investment &mdash; not the tools</p>
+            <div class="cap-grid reveal">
+                <div class="cap-item"><span class="cap-num">01</span>Clear AI Policies</div>
+                <div class="cap-item"><span class="cap-num">02</span>Healthy Data Ecosystems</div>
+                <div class="cap-item"><span class="cap-num">03</span>AI-Accessible Internal Data</div>
+                <div class="cap-item"><span class="cap-num">04</span>Strong Version Control</div>
+                <div class="cap-item"><span class="cap-num">05</span>Small Batch Discipline</div>
+                <div class="cap-item"><span class="cap-num">06</span>User-Centric Focus</div>
+                <div class="cap-item"><span class="cap-num">07</span>Quality Internal Platforms</div>
+            </div>
+            <div class="insight reveal">
+                <span class="insight-tag">Key Insight</span>
+                Without these capabilities in place, AI adoption has minimal organizational impact. The greatest returns come from investing in foundational systems, not the AI tools themselves.
+            </div>
+        </div></div>
+        <span class="counter">6<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 7: TRANSFORMATION, NOT DEPLOYMENT
+         Speaker notes: This is the slide I want everyone to internalize. AI is not a tool deployment.
+         It's an organizational transformation. It needs executive sponsorship — real sponsorship,
+         not a mention in a quarterly review. It needs cross-functional ownership — engineering alone
+         cannot do this. Legal, security, product, all need to be at the table. And cultural change
+         has to come before or alongside the technical change. You can't bolt AI onto a culture that
+         doesn't support experimentation and learning.
+         ========================================== -->
+    <section class="slide" data-slide="7">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">It&rsquo;s a Transformation,<br>Not a Deployment</h2>
+            <p class="sub reveal">AI requires organizational change, not just tool procurement</p>
+            <ul>
+                <li class="reveal"><strong>Executive sponsorship</strong> is non-negotiable &mdash; real sponsorship, not a quarterly mention</li>
+                <li class="reveal"><strong>Cross-functional ownership:</strong> engineering + legal + security + product + leadership</li>
+                <li class="reveal">You can&rsquo;t delegate <strong>AI transformation to engineering alone</strong></li>
+                <li class="reveal"><strong>Cultural change</strong> precedes technical change &mdash; always</li>
+            </ul>
+        </div></div>
+        <span class="counter">7<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 8: STOP GUESSING, START MEASURING
+         Speaker notes: Now let's talk about measurement. If you can't measure AI's impact, you
+         can't manage it. And too many organizations define KPIs after they've already deployed tools.
+         That's backwards. We need to establish our three pillars framework — Utilization, Impact,
+         and Cost — and baseline where we are before we invest further. Vanity metrics like "we
+         have 500 licenses" tell us nothing about value.
+         ========================================== -->
+    <section class="slide" data-slide="8">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Stop Guessing, Start Measuring</h2>
+            <p class="sub reveal">If you can&rsquo;t measure AI&rsquo;s impact, you can&rsquo;t manage it</p>
+            <ul>
+                <li class="reveal">Define KPIs <strong>before</strong> rolling out tools, not after</li>
+                <li class="reveal">Three pillars: <strong>Utilization &bull; Impact &bull; Cost</strong></li>
+                <li class="reveal">Vanity metrics (&ldquo;we have 500 licenses&rdquo;) tell us <strong>nothing about value</strong></li>
+                <li class="reveal"><strong>Establish baselines first</strong> &mdash; you can&rsquo;t prove improvement without a starting point</li>
+            </ul>
+        </div></div>
+        <span class="counter">8<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 9: THE THREE PILLARS
+         Speaker notes: Here's our measurement framework. Three pillars. Utilization asks "are we
+         adopting?" — DAU/WAU, percentage of PRs that are AI-assisted, code that's AI-generated,
+         tasks assigned to agents. Impact asks "is it working?" — time savings in dev hours per week,
+         developer satisfaction, our DX Core 4 metrics, and Human-Equivalent Hours of work done by
+         agents. Cost asks "is it worth it?" — total spend, spend per developer, net time gained, and
+         the agent hourly rate. This gives us a complete picture.
+         ========================================== -->
+    <section class="slide" data-slide="9">
+        <div class="cs cp-3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">The Three Pillars</h2>
+            <p class="sub reveal">A complete measurement framework for AI impact</p>
+            <div class="pillars reveal">
+                <div class="pillar">
+                    <div class="pillar-head">Utilization</div>
+                    <div class="pillar-q">Are we adopting?</div>
+                    <ul>
+                        <li>AI tool usage (DAU/WAU%)</li>
+                        <li>% of PRs that are AI-assisted</li>
+                        <li>% of code that is AI-generated</li>
+                        <li>Tasks assigned to agents</li>
+                    </ul>
+                </div>
+                <div class="pillar">
+                    <div class="pillar-head">Impact</div>
+                    <div class="pillar-q">Is it working?</div>
+                    <ul>
+                        <li>Dev hours saved per week</li>
+                        <li>Developer satisfaction</li>
+                        <li>DX Core 4 metrics</li>
+                        <li>Human-Equivalent Hours (HEH)</li>
+                    </ul>
+                </div>
+                <div class="pillar">
+                    <div class="pillar-head">Cost</div>
+                    <div class="pillar-q">Is it worth it?</div>
+                    <ul>
+                        <li>AI spend (total + per dev)</li>
+                        <li>Net time gain per developer</li>
+                        <li>Agent hourly rate (HEH / spend)</li>
+                    </ul>
+                </div>
+            </div>
+        </div></div>
+        <span class="counter">9<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 10: UTILIZATION DEEP DIVE
+         Speaker notes: Let's unpack utilization. These metrics tell us whether people are actually
+         using the tools. DAU/WAU gives us daily and weekly engagement. PR percentage tells us if
+         AI is in the workflow. Code percentage shows generation volume. And tasks assigned to agents
+         shows how much autonomous work we're delegating. But here's the warning — utilization
+         without impact is just vanity metrics. High usage that doesn't improve outcomes is waste.
+         ========================================== -->
+    <section class="slide" data-slide="10">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Utilization</h2>
+            <p class="sub reveal">Measuring adoption &mdash; are we actually using what we bought?</p>
+            <ul>
+                <li class="reveal"><strong>AI tool daily/weekly active usage</strong> rates (DAU/WAU%)</li>
+                <li class="reveal"><strong>% of pull requests</strong> that are AI-assisted</li>
+                <li class="reveal"><strong>% of committed code</strong> that is AI-generated</li>
+                <li class="reveal"><strong>Tasks successfully completed</strong> by AI agents</li>
+            </ul>
+            <div class="insight reveal">
+                <span class="insight-tag">Warning</span>
+                Utilization without impact is just vanity metrics. High usage that doesn&rsquo;t improve outcomes is waste, not progress.
+            </div>
+        </div></div>
+        <span class="counter">10<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 11: IMPACT DEEP DIVE
+         Speaker notes: Impact is where the real story is. Time savings in developer hours per week
+         is the most tangible metric. Developer satisfaction tells us if people are happier — and
+         happy developers produce better work. DX Core 4 gives us PR throughput, perceived delivery
+         rate, the Developer Experience Index, and code maintainability. Change confidence and change
+         failure rate tell us about quality. And HEH — Human-Equivalent Hours — measures how much
+         work agents are doing autonomously.
+         ========================================== -->
+    <section class="slide" data-slide="11">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Impact</h2>
+            <p class="sub reveal">Measuring real change &mdash; is AI actually improving outcomes?</p>
+            <ul>
+                <li class="reveal"><strong>AI-driven time savings</strong> in dev hours per week</li>
+                <li class="reveal"><strong>Developer satisfaction</strong> scores</li>
+                <li class="reveal"><strong>PR throughput</strong> and perceived rate of delivery</li>
+                <li class="reveal"><strong>Developer Experience Index</strong> (DXI)</li>
+                <li class="reveal"><strong>Code maintainability</strong> and change confidence</li>
+                <li class="reveal"><strong>Change failure %</strong> and Human-Equivalent Hours (HEH)</li>
+            </ul>
+        </div></div>
+        <span class="counter">11<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 12: COST & ROI
+         Speaker notes: And finally, cost. We need to prove this investment makes sense. Total AI
+         spend and spend per developer gives us the input. Net time gain per developer — that's
+         time savings minus tool cost — gives us the value. And the agent hourly rate — HEH divided
+         by AI spend — tells us how cost-effective our agents are. Track monthly, report quarterly.
+         This is how we turn "we're using AI" into "AI is delivering X return."
+         ========================================== -->
+    <section class="slide" data-slide="12">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Cost &amp; ROI</h2>
+            <p class="sub reveal">Proving the investment &mdash; is it worth what we&rsquo;re spending?</p>
+            <ul>
+                <li class="reveal"><strong>Total AI spend</strong> and spend per developer</li>
+                <li class="reveal"><strong>Net time gain per developer</strong> &mdash; savings minus tool cost</li>
+                <li class="reveal"><strong>Agent hourly rate:</strong> HEH &divide; AI spend</li>
+                <li class="reveal">The goal: <strong>demonstrate clear, measurable ROI</strong></li>
+                <li class="reveal"><strong>Track monthly, report quarterly</strong> &mdash; make it a discipline</li>
+            </ul>
+        </div></div>
+        <span class="counter">12<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 13: DEVEX = AGENT EXPERIENCE
+         Speaker notes: Here's an insight that changes everything. Everything a developer needs to
+         be productive is exactly what an AI agent needs too. Fast CI pipelines, modern tooling,
+         clean APIs, good documentation, reliable platforms. When you invest in developer experience,
+         you simultaneously enable both humans AND agents. And the reverse is true — poor DevEx means
+         poor agent performance, which means your AI investment is wasted.
+         ========================================== -->
+    <section class="slide" data-slide="13">
+        <div class="cs cp-3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">DevEx = Agent Experience</h2>
+            <p class="sub reveal">The equation that changes everything</p>
+            <ul>
+                <li class="reveal">Everything a developer needs is <strong>what an agent needs too</strong></li>
+                <li class="reveal">Fast CI, modern tooling, clean APIs, good docs, <strong>reliable platforms</strong></li>
+                <li class="reveal">Invest in DevEx = <strong>simultaneously enable humans AND agents</strong></li>
+                <li class="reveal">Poor DevEx &rarr; poor agent performance &rarr; <strong>wasted AI investment</strong></li>
+            </ul>
+            <div class="insight reveal">
+                <span class="insight-tag">Key Insight</span>
+                The single best investment you can make for AI is improving your developer experience. It&rsquo;s the same investment.
+            </div>
+        </div></div>
+        <span class="counter">13<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 14: THE PLATFORM MULTIPLIER
+         Speaker notes: Internal platforms are the distribution and governance layer for AI. When
+         your platform quality is low, AI's impact on organizational performance is essentially zero.
+         When platform quality is high, the impact becomes strong and compounds over time. The single
+         most correlated factor? Clear feedback on task outcomes. Not fancy features. Just "tell me
+         what happened." Treat the platform as a product, not a ticket queue.
+         ========================================== -->
+    <section class="slide" data-slide="14">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">The Platform is the Multiplier</h2>
+            <p class="sub reveal">Internal platforms are the distribution layer for AI</p>
+            <ul>
+                <li class="reveal">Low platform quality &rarr; <strong>negligible organizational AI impact</strong></li>
+                <li class="reveal">High platform quality &rarr; <strong>strong, compounding AI impact</strong></li>
+                <li class="reveal">Most correlated trait: <strong>clear feedback on task outcomes</strong></li>
+                <li class="reveal">Platform as a <strong>product</strong>, not a ticket queue</li>
+            </ul>
+        </div></div>
+        <span class="counter">14<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 15: WHAT GREAT LOOKS LIKE
+         Speaker notes: So what does a great internal platform look like? Self-service golden paths
+         for build, test, and deploy. CI that completes in minutes, not hours — because every minute
+         a developer waits is a minute an agent waits too. Dev environments that spin up fast.
+         Complexity abstracted away — K8s, networking, security policies handled by the platform.
+         And extensibility — teams can add their own tools without waiting for a platform ticket.
+         ========================================== -->
+    <section class="slide" data-slide="15">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">What Great Looks Like</h2>
+            <p class="sub reveal">The ideal internal platform for humans and agents</p>
+            <ul>
+                <li class="reveal"><strong>Self-service golden paths</strong> for build, test, and deploy</li>
+                <li class="reveal">CI that completes in <strong>minutes, not hours</strong></li>
+                <li class="reveal">Dev environment setup in <strong>minutes</strong></li>
+                <li class="reveal"><strong>Abstracts complexity</strong> &mdash; K8s, networking, security</li>
+                <li class="reveal"><strong>Extensible:</strong> teams add their own tools</li>
+                <li class="reveal"><strong>Clear, actionable feedback</strong> at every step</li>
+            </ul>
+        </div></div>
+        <span class="counter">15<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 16: DEVEX METRICS
+         Speaker notes: And here's how we measure DevEx. CI pipeline duration — how long from push
+         to feedback? Lead time — commit to production. Dev environment setup time. Build success
+         rate — flaky builds kill productivity. Developer satisfaction through surveys. And the
+         most telling metric: the ratio of time building versus time waiting. If developers spend
+         more time waiting than building, no amount of AI will fix that.
+         ========================================== -->
+    <section class="slide" data-slide="16">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">DevEx Metrics</h2>
+            <p class="sub reveal">What to track &mdash; the numbers that reveal platform health</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Speed</h3><ul>
+                    <li>CI pipeline duration</li>
+                    <li>Commit-to-production lead time</li>
+                    <li>Dev environment setup time</li>
+                </ul></div>
+                <div class="card reveal"><h3>Quality</h3><ul>
+                    <li>Build success rate</li>
+                    <li>Developer satisfaction (survey)</li>
+                    <li>Time building vs. time waiting</li>
+                </ul></div>
+            </div>
+        </div></div>
+        <span class="counter">16<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 17: THE PRODUCTIVITY PARADOX
+         Speaker notes: Now here's something that should concern all of us. Developers who use AI
+         extensively report feeling more productive — more flow, higher satisfaction, less burnout.
+         But when you actually measure what they're spending time on, there's no increase in time
+         on valuable work and no decrease in toil. They feel faster, but the actual proportion of
+         effort on high-value work hasn't changed. Feeling productive and delivering value are not
+         the same thing. We need to measure both.
+         ========================================== -->
+    <section class="slide" data-slide="17">
+        <div class="cs cp-3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">The Productivity Paradox</h2>
+            <p class="sub reveal">Feeling fast &ne; delivering impact</p>
+            <ul>
+                <li class="reveal">Developers using AI report <strong>more flow and higher satisfaction</strong></li>
+                <li class="reveal">Yet: <strong>no increase</strong> in time on valuable work, <strong>no decrease</strong> in toil</li>
+                <li class="reveal">Speed of execution alone is <strong>not a proxy for value creation</strong></li>
+                <li class="reveal">Must distinguish <strong>throughput</strong> from <strong>value delivery</strong></li>
+            </ul>
+            <div class="insight reveal">
+                <span class="insight-tag">Paradox</span>
+                Organizations can feel more productive while the actual proportion of effort on high-value work remains unchanged. Measure both perception and reality.
+            </div>
+        </div></div>
+        <span class="counter">17<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 18: THE REAL BOTTLENECKS
+         Speaker notes: Coding is only a fraction of the delivery lifecycle. The real time sinks are
+         meetings, waiting for reviews, CI queues, environment setup, context switching between tasks.
+         AI that speeds up coding but ignores all of this gives us marginal improvement at best. The
+         delivery pipeline goes from commit to production and it connects multiple teams. And here's
+         the critical thing — optimizing a non-bottleneck yields zero organizational improvement.
+         You have to find the actual constraints first.
+         ========================================== -->
+    <section class="slide" data-slide="18">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">The Real Bottlenecks</h2>
+            <p class="sub reveal">Coding is only a fraction of the delivery lifecycle</p>
+            <ul>
+                <li class="reveal">Real time sinks: <strong>meetings, review waits, CI queues, env setup, context switching</strong></li>
+                <li class="reveal">AI that speeds coding but ignores everything else = <strong>marginal improvement</strong></li>
+                <li class="reveal">The pipeline goes <strong>commit &rarr; production</strong>, connecting multiple teams</li>
+                <li class="reveal">Optimizing a non-bottleneck yields <strong>zero organizational improvement</strong></li>
+            </ul>
+        </div></div>
+        <span class="counter">18<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 19: REDUCE UNPLANNED WORK & NOISE
+         Speaker notes: Unplanned work is the silent killer. Every incident, every hotfix, every
+         "quick thing" that comes in cannibalizes the planned, valuable work. And context switching —
+         assigning people to multiple tasks simultaneously — doesn't increase throughput. It destroys
+         it. It makes everything take longer AND burns people out. AI can help here: triage incidents
+         automatically, auto-remediate known issues, reduce alert noise, summarize meeting decisions
+         so people don't need to attend. This is where AI creates real organizational value.
+         ========================================== -->
+    <section class="slide" data-slide="19">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Reduce Unplanned Work &amp; Noise</h2>
+            <p class="sub reveal">Noise destroys value &mdash; protect the signal</p>
+            <ul>
+                <li class="reveal">Unplanned work (incidents, hotfixes) <strong>cannibalizes planned work</strong></li>
+                <li class="reveal">Context switching makes everything slower <strong>AND burns people out</strong></li>
+                <li class="reveal">Multitasking doesn&rsquo;t increase throughput &mdash; <strong>it destroys it</strong></li>
+                <li class="reveal">AI can: <strong>triage incidents, auto-remediate, reduce alerts, summarize decisions</strong></li>
+            </ul>
+        </div></div>
+        <span class="counter">19<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 20: FIX THE ENTIRE DEVELOPER DAY
+         Speaker notes: Here's what it looks like to apply AI across the entire developer workflow,
+         not just coding. Cut meetings with AI summaries, async standup bots, decision logs. Slash
+         CI wait times with smarter test selection, parallel pipelines, AI-powered flaky test
+         detection. Accelerate environment setup with AI-assisted onboarding and self-service platforms.
+         Reduce review bottlenecks with AI code review and automated style and security checks. Kill
+         context switching with WIP limits and AI-powered task prioritization.
+         ========================================== -->
+    <section class="slide" data-slide="20">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Fix the Entire Developer Day</h2>
+            <p class="sub reveal">AI across the full workflow, not just code generation</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Cut Meetings</h3><ul><li>AI summaries, async standups, decision logs</li></ul></div>
+                <div class="card reveal"><h3>Slash CI Wait</h3><ul><li>Smart test selection, parallel pipelines, flaky test detection</li></ul></div>
+                <div class="card reveal"><h3>Fast Setup</h3><ul><li>AI-assisted onboarding, self-service platforms</li></ul></div>
+                <div class="card reveal"><h3>Faster Reviews</h3><ul><li>AI code review, automated style &amp; security checks</li></ul></div>
+                <div class="card reveal"><h3>Kill Switching</h3><ul><li>WIP limits, AI-powered task prioritization</li></ul></div>
+            </div>
+        </div></div>
+        <span class="counter">20<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 21: VALUE STREAM MAPPING
+         Speaker notes: Value stream mapping is how we find where time actually dies. Map the full
+         journey from commit to production. At every step, measure process time — how long does the
+         actual work take? And wait time — how long does work sit in a queue? Calculate percent
+         complete and accurate at each handoff — how often does the next step get something it can
+         use without rework? This reveals where the real bottlenecks are. Then target your AI
+         investment at those constraints. That's how you get organizational impact.
+         ========================================== -->
+    <section class="slide" data-slide="21">
+        <div class="cs cp-3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Value Stream Mapping</h2>
+            <p class="sub reveal">Find where time dies &mdash; then target AI at real constraints</p>
+            <ul class="steps">
+                <li class="reveal">Map the full journey: <strong>commit &rarr; production</strong></li>
+                <li class="reveal">Measure <strong>process time vs. wait time</strong> at every step</li>
+                <li class="reveal">Calculate <strong>% Complete &amp; Accurate</strong> at each handoff</li>
+                <li class="reveal">Find the <strong>actual bottlenecks</strong></li>
+                <li class="reveal">Target AI investment at <strong>real constraints</strong></li>
+            </ul>
+            <div class="insight reveal">
+                <span class="insight-tag">Rule</span>
+                Don&rsquo;t optimize a non-bottleneck &mdash; it yields zero organizational improvement. Find the constraint first.
+            </div>
+        </div></div>
+        <span class="counter">21<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 22: NOT AN ENGINEERING INITIATIVE
+         Speaker notes: AI is not an engineering initiative. It requires the whole organization.
+         Cross-functional alignment between engineering, legal, security, product, and leadership.
+         An AI policy written by one team alone is insufficient. The greatest returns come from
+         investing in foundational systems — data quality, platform quality, process quality. And
+         individual gains from AI are completely lost to downstream disorder if the org doesn't
+         change around them.
+         ========================================== -->
+    <section class="slide" data-slide="22">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Not an Engineering Initiative</h2>
+            <p class="sub reveal">AI requires the whole organization, not just one department</p>
+            <ul>
+                <li class="reveal"><strong>Cross-functional alignment:</strong> eng + legal + security + product + leadership</li>
+                <li class="reveal">An AI policy authored by <strong>one team alone is insufficient</strong></li>
+                <li class="reveal">Greatest returns come from investing in <strong>foundational systems</strong></li>
+                <li class="reveal">Individual gains are <strong>lost to downstream disorder</strong> without org-wide change</li>
+            </ul>
+        </div></div>
+        <span class="counter">22<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 23: THREE-BUCKET POLICY
+         Speaker notes: Here's a practical framework for AI governance — the three-bucket policy.
+         Prohibited: high-risk uses like putting PII into public models, sharing trade secrets, using
+         unvetted tools. Permitted with guardrails: proprietary code with approved enterprise-grade
+         tools, human review required. Allowed: low-risk, high-value activities like boilerplate
+         generation, brainstorming, documentation, learning. This should be a living document —
+         centrally published, regularly updated, with a clear feedback loop.
+         ========================================== -->
+    <section class="slide" data-slide="23">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">The Three-Bucket Policy</h2>
+            <p class="sub reveal">Simple rules so everyone knows what&rsquo;s okay and what&rsquo;s not</p>
+            <div class="pillars reveal">
+                <div class="bucket red">
+                    <h3>Don&rsquo;t Do This</h3>
+                    <ul><li>Never share customer or personal data with AI</li><li>Keep sensitive business info out of AI tools</li><li>Don&rsquo;t use AI tools we haven&rsquo;t approved</li></ul>
+                </div>
+                <div class="bucket amber">
+                    <h3>OK, But Be Careful</h3>
+                    <ul><li>Use our code with approved AI tools only</li><li>A human must always review AI output</li><li>Stick to company-approved platforms</li></ul>
+                </div>
+                <div class="bucket green">
+                    <h3>Go For It</h3>
+                    <ul><li>Writing repetitive code and templates</li><li>Brainstorming and exploring ideas</li><li>Writing docs and learning new things</li></ul>
+                </div>
+            </div>
+            <div class="insight reveal">
+                <span class="insight-tag">Keep It Fresh</span>
+                This is a living document &mdash; update it regularly, make it easy to find, and let people ask questions.
+            </div>
+        </div></div>
+        <span class="counter">23<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 24: CULTURE EATS AI STRATEGY
+         Speaker notes: Culture eats AI strategy for breakfast. Psychological safety is the
+         foundation — developers need to feel safe experimenting with AI and safe to fail. Don't
+         mandate AI usage — research clearly shows mandating undermines the very trust you need.
+         Celebrate learning from failure, not just shipping. Create communities of practice where
+         teams share what works. And preserve developer autonomy over tool choice — people trust
+         tools they choose more than tools they're forced to use.
+         ========================================== -->
+    <section class="slide" data-slide="24">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Culture Eats AI Strategy</h2>
+            <p class="sub reveal">Build the right culture &mdash; or the tools won&rsquo;t matter</p>
+            <ul>
+                <li class="reveal"><strong>Psychological safety:</strong> developers must feel safe to experiment and fail</li>
+                <li class="reveal">Don&rsquo;t mandate usage &mdash; <strong>mandating undermines trust</strong></li>
+                <li class="reveal">Celebrate <strong>learning from failure</strong>, not just shipping</li>
+                <li class="reveal"><strong>Communities of practice</strong> to share what works and what doesn&rsquo;t</li>
+                <li class="reveal">Developer <strong>autonomy over tool usage</strong> increases trust and adoption</li>
+            </ul>
+        </div></div>
+        <span class="counter">24<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 25: THE J-CURVE
+         Speaker notes: Every transformation follows a J-curve. You start with quick wins — early
+         adopters get excited, some processes improve. Then comes the dip. Accumulated technical debt
+         surfaces. New processes create overhead. People are learning. Performance temporarily gets
+         worse before it gets better. This is where most organizations panic and pull back. But the
+         organizations that commit through the dip are the ones that reach breakthrough performance.
+         Leadership must understand this curve and plan for it.
+         ========================================== -->
+    <section class="slide" data-slide="25">
+        <div class="cs cp-3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">The J-Curve</h2>
+            <p class="sub reveal">Expect the dip before the breakthrough</p>
+            <div class="j-curve-wrap reveal">
+                <svg viewBox="0 0 600 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="40" y1="160" x2="560" y2="160" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                    <line x1="40" y1="20" x2="40" y2="160" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+                    <path d="M60 80 Q120 60 170 70 Q240 100 280 140 Q340 155 400 100 Q460 40 540 25" stroke="#d97757" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+                    <circle cx="60" cy="80" r="4" fill="#d97757"/>
+                    <circle cx="170" cy="70" r="4" fill="#d97757"/>
+                    <circle cx="280" cy="140" r="4" fill="#d97757"/>
+                    <circle cx="540" cy="25" r="4" fill="#d97757"/>
+                    <text x="50" y="75" fill="#a0a0a0" font-size="11" font-family="Inter,sans-serif">Quick wins</text>
+                    <text x="250" y="158" fill="#e85454" font-size="11" font-family="Inter,sans-serif">The Dip</text>
+                    <text x="470" y="20" fill="#54b878" font-size="11" font-family="Inter,sans-serif">Breakthrough</text>
+                    <text x="42" y="175" fill="#555" font-size="10" font-family="JetBrains Mono,monospace">TIME &rarr;</text>
+                    <text x="12" y="90" fill="#555" font-size="10" font-family="JetBrains Mono,monospace" transform="rotate(-90,12,90)">PERFORMANCE</text>
+                </svg>
+            </div>
+            <ul>
+                <li class="reveal">The dip: accumulated debt + new process overhead + <strong>learning curve</strong></li>
+                <li class="reveal">Orgs that <strong>quit during the dip</strong> never see the payoff</li>
+                <li class="reveal">Leadership must understand and <strong>commit through the curve</strong></li>
+            </ul>
+        </div></div>
+        <span class="counter">25<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 26: BUILD THE NEW
+         Speaker notes: Here's something important. The current AI adoption pattern is mostly about
+         replicating routine work — code generation, test generation, documentation. That's fine, but
+         it's not transformative. The bigger opportunity is using AI to solve problems we couldn't
+         solve before. New products. New capabilities. New ways of working entirely. AI should enable
+         innovation, not just acceleration. Don't just automate the old — build the new.
+         ========================================== -->
+    <section class="slide" data-slide="26">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Build the New</h2>
+            <p class="sub reveal">Stop automating the old &mdash; start solving new problems</p>
+            <ul>
+                <li class="reveal">Current pattern: replicate routine work (<strong>code gen, test gen</strong>)</li>
+                <li class="reveal">The bigger opportunity: <strong>solve problems we couldn&rsquo;t before</strong></li>
+                <li class="reveal">New products, new capabilities, <strong>new ways of working</strong></li>
+                <li class="reveal">AI should enable <strong>innovation</strong>, not just acceleration</li>
+            </ul>
+            <div class="insight reveal">
+                <span class="insight-tag">Mindset Shift</span>
+                The question isn&rsquo;t &ldquo;how do we do the same things faster?&rdquo; &mdash; it&rsquo;s &ldquo;what can we do now that we couldn&rsquo;t before?&rdquo;
+            </div>
+        </div></div>
+        <span class="counter">26<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 27: STRUCTURED EXPERIMENTATION
+         Speaker notes: We need a disciplined approach to experimentation. Step one: define a real
+         problem — a business pain point, not a tech novelty. Step two: set a hypothesis and success
+         metric before you start. Step three: time-box it — two to four weeks with clear go/no-go
+         criteria. Step four: use sandbox environments so failure is cheap. Step five: share results
+         broadly regardless of outcome — failed experiments teach us as much as successful ones.
+         ========================================== -->
+    <section class="slide" data-slide="27">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Structured Experi&shy;mentation</h2>
+            <p class="sub reveal">A framework for disciplined innovation</p>
+            <ul class="steps">
+                <li class="reveal">Define the problem &mdash; <strong>real business pain</strong>, not tech novelty</li>
+                <li class="reveal">Set <strong>hypothesis + success metric</strong> before starting</li>
+                <li class="reveal">Time-box: <strong>2&ndash;4 week</strong> experiments with go/no-go criteria</li>
+                <li class="reveal">Sandbox environments &mdash; <strong>make failure cheap</strong></li>
+                <li class="reveal">Share results broadly <strong>regardless of outcome</strong></li>
+            </ul>
+        </div></div>
+        <span class="counter">27<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 28: WHAT TO EXPERIMENT WITH
+         Speaker notes: So what should we experiment with? Here are concrete opportunities. AI-powered
+         customer support and onboarding. Automated incident triage and remediation. Smart testing —
+         AI selecting which tests to run, generating test cases, detecting flaky tests. Internal
+         knowledge assistants that are connected to our actual codebase and documentation. Predictive
+         analytics on our delivery pipelines. And AI agents handling routine operational tasks
+         end-to-end, without human intervention.
+         ========================================== -->
+    <section class="slide" data-slide="28">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">What to Experiment With</h2>
+            <p class="sub reveal">Real opportunities &mdash; start here</p>
+            <div class="grid">
+                <div class="card reveal"><h3>Onboarding</h3><ul><li>AI-powered onboarding for new developers</li></ul></div>
+                <div class="card reveal"><h3>Incidents</h3><ul><li>Automated triage &amp; remediation</li></ul></div>
+                <div class="card reveal"><h3>Testing</h3><ul><li>Smart selection, generation, flaky detection</li></ul></div>
+                <div class="card reveal"><h3>Knowledge</h3><ul><li>Internal assistants on your actual codebase</li></ul></div>
+                <div class="card reveal"><h3>Analytics</h3><ul><li>Predictive analytics on delivery pipelines</li></ul></div>
+                <div class="card reveal"><h3>Operations</h3><ul><li>AI agents handling routine tasks end-to-end</li></ul></div>
+            </div>
+        </div></div>
+        <span class="counter">28<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 29: NEXT 30 DAYS
+         Speaker notes: Here's what we do in the next 30 days. One: establish our AI policy using
+         the three-bucket framework. Two: define and baseline our Utilization, Impact, and Cost KPIs.
+         Three: run a value stream mapping exercise on our primary delivery pipeline — find where
+         time actually goes. Four: assess our current state — which team archetype are we? Five: form
+         a cross-functional AI working group with representatives from engineering, security, product,
+         and leadership.
+         ========================================== -->
+    <section class="slide" data-slide="29">
+        <div class="cs cp-3"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Next 30 Days</h2>
+            <p class="sub reveal">Immediate actions &mdash; start this week</p>
+            <ul class="steps">
+                <li class="reveal">Set clear rules for <strong>what&rsquo;s okay and not okay</strong> with AI</li>
+                <li class="reveal">Pick <strong>how we&rsquo;ll measure success</strong> &mdash; usage, impact, and cost</li>
+                <li class="reveal">Map out <strong>where time gets wasted</strong> from code to production</li>
+                <li class="reveal">Take an honest look at <strong>where our teams stand today</strong></li>
+                <li class="reveal">Pick <strong>one real bottleneck</strong> and run a quick AI experiment to fix it</li>
+            </ul>
+        </div></div>
+        <span class="counter">29<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 30: NEXT 90 DAYS
+         Speaker notes: In the next 90 days, we build the foundation. Invest in platform quality —
+         specifically cutting CI times and improving dev environment setup. Connect AI tools to our
+         internal documentation and codebases through context engineering. Launch two to three
+         structured experiments targeting real business problems. Start monthly KPI measurement and
+         reporting — make it visible. And establish communities of practice for sharing AI knowledge
+         across teams.
+         ========================================== -->
+    <section class="slide" data-slide="30">
+        <div class="cs cp-0"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">Next 90 Days</h2>
+            <p class="sub reveal">Build the foundation &mdash; invest in what actually matters</p>
+            <ul class="steps">
+                <li class="reveal">Invest in platform: <strong>cut CI times, improve dev environments</strong></li>
+                <li class="reveal">Connect AI to <strong>internal docs and codebases</strong> (context engineering)</li>
+                <li class="reveal">Launch <strong>2&ndash;3 structured experiments</strong> on real business problems</li>
+                <li class="reveal">Begin <strong>monthly KPI measurement</strong> and reporting</li>
+                <li class="reveal">Establish <strong>communities of practice</strong> for AI knowledge sharing</li>
+            </ul>
+        </div></div>
+        <span class="counter">30<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 31: CALL TO ACTION
+         Speaker notes: Let me leave you with this. AI won't wait for us to get organized. The gap
+         between organizations that treat AI as a transformation and those that treat it as a tool
+         purchase is widening every single day. This is not about technology. It's about whether we
+         choose to build the foundation that makes AI actually work. AI is a magnifying glass.
+         The question is: what are we magnifying? Thank you.
+         ========================================== -->
+    <section class="slide" data-slide="31">
+        <div class="cs cp-1"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container">
+            <div class="logo-bar reveal"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg><span class="name">claude<span class="slash">/</span>code</span></div>
+            <h2 class="reveal">AI Won&rsquo;t Wait</h2>
+            <p class="sub reveal">The call to action</p>
+            <ul>
+                <li class="reveal">The gap between <strong>transformers and purchasers</strong> widens every day</li>
+                <li class="reveal">This is not about technology &mdash; it&rsquo;s about <strong>building the foundation</strong></li>
+                <li class="reveal">AI is a magnifying glass. <strong>What are we magnifying?</strong></li>
+            </ul>
+            <div class="big-quote reveal">
+                &ldquo;The greatest returns come not from the tools themselves, but from investing in the foundational systems that enable success.&rdquo;
+            </div>
+        </div></div>
+        <span class="counter">31<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <!-- ==========================================
+         SLIDE 32: THANK YOU
+         ========================================== -->
+    <section class="slide" data-slide="32">
+        <div class="cs cp-2"><div class="cb"><div class="ff a"></div><div class="ff b"></div><div class="ff c"></div><div class="ff d"></div><div class="ff e"></div><div class="ff f"></div></div></div>
+        <div class="wrap"><div class="container" style="text-align:center;">
+            <h2 class="reveal" style="font-size:clamp(2.5rem,7vw,5rem);margin-bottom:clamp(1rem,3vw,2rem);">Thank You</h2>
+            <p class="sub reveal" style="font-size:clamp(0.85rem,1.8vw,1.2rem);margin-bottom:clamp(1.5rem,4vw,3rem);opacity:.6;">Written by</p>
+            <div class="reveal" style="display:flex;justify-content:center;gap:clamp(2rem,5vw,4rem);align-items:center;flex-wrap:wrap;">
+                <div style="text-align:center;">
+                    <p style="font-size:clamp(1rem,2.5vw,1.5rem);font-weight:600;color:var(--text);">Haim Ari</p>
+                    <p style="font-size:clamp(0.75rem,1.3vw,1rem);opacity:.5;margin-top:.25rem;">start.io</p>
+                </div>
+                <span style="font-size:clamp(1rem,2vw,1.5rem);opacity:.3;">&amp;</span>
+                <div style="text-align:center;">
+                    <p style="font-size:clamp(1rem,2.5vw,1.5rem);font-weight:600;color:var(--text);">Claude</p>
+                    <p style="font-size:clamp(0.75rem,1.3vw,1rem);opacity:.5;margin-top:.25rem;">Anthropic</p>
+                </div>
+            </div>
+        </div></div>
+        <span class="counter">32<span class="counter-sep">/</span>32</span>
+    </section>
+
+    <script>
+    (()=>{
+        const S=document.querySelectorAll('.slide'),N=S.length;
+        const dotsNav=document.getElementById('dots');
+        const P=document.getElementById('progress');
+        let c=0,lock=false;
+
+        // Generate dots
+        S.forEach((_,i)=>{
+            const btn=document.createElement('button');
+            btn.className='dot'+(i===0?' active':'');
+            btn.dataset.slide=i;
+            btn.addEventListener('click',()=>go(i));
+            dotsNav.appendChild(btn);
+        });
+        const D=document.querySelectorAll('.dot');
+
+        const obs=new IntersectionObserver(es=>{es.forEach(e=>{
+            if(e.isIntersecting){e.target.classList.add('visible');c=[...S].indexOf(e.target);upd();}
+        });},{threshold:.3});
+        S.forEach(s=>obs.observe(s));
+
+        function go(i){if(i<0||i>=N||lock)return;lock=true;c=i;S[i].scrollIntoView({behavior:'smooth'});upd();setTimeout(()=>lock=false,700);}
+        function upd(){P.style.width=((c+1)/N*100)+'%';D.forEach((d,i)=>d.classList.toggle('active',i===c));}
+
+        document.addEventListener('keydown',e=>{
+            if(['ArrowDown','ArrowRight',' '].includes(e.key)){e.preventDefault();go(c+1);}
+            else if(['ArrowUp','ArrowLeft'].includes(e.key)){e.preventDefault();go(c-1);}
+        });
+
+        let ty=0;
+        document.addEventListener('touchstart',e=>{ty=e.touches[0].clientY;},{passive:true});
+        document.addEventListener('touchend',e=>{const d=ty-e.changedTouches[0].clientY;if(Math.abs(d)>50)go(c+(d>0?1:-1));},{passive:true});
+
+        S[0].classList.add('visible');upd();
+    })();
+    </script>
+</body>
+</html>
